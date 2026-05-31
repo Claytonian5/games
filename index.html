@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backyard Bombers Derby</title>
+<style>
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(#82d8ff 0 35%, #208548 35% 100%);
+    color:white;
+    min-height:100vh;
+    text-align:center;
+  }
+  .screen{display:none;min-height:100vh;padding:18px;align-items:center;justify-content:center}
+  .active{display:flex}
+  .panel{
+    max-width:1000px;width:100%;
+    background:rgba(10,28,52,.92);
+    border:4px solid white;
+    border-radius:22px;
+    padding:22px;
+    box-shadow:0 15px 45px rgba(0,0,0,.35);
+  }
+  h1{font-size:clamp(2.2rem,6vw,4rem);margin:8px 0;color:#ffd166;text-shadow:3px 3px #111}
+  h2{margin:8px 0 18px}
+  button,.player{
+    cursor:pointer;
+    border:0;
+    border-radius:16px;
+    padding:14px 18px;
+    font-size:1rem;
+    font-weight:900;
+    background:#ffd166;
+    color:#10223b;
+    box-shadow:0 5px 0 #b98516;
+    margin:6px;
+    touch-action:manipulation;
+  }
+  button:active,.player:active{transform:translateY(4px);box-shadow:0 1px 0 #b98516}
+  .player-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+    gap:12px;
+    margin:20px 0;
+  }
+  .player{
+    background:white;
+    color:#10223b;
+    border:4px solid #dbeafe;
+    min-height:145px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+  }
+  .player.selected{border-color:#ffd166;background:#fff7cf}
+  .jersey{
+    width:74px;height:78px;
+    background:#f8fbff;
+    border:4px solid #14365d;
+    border-radius:18px 18px 10px 10px;
+    display:flex;align-items:center;justify-content:center;
+    color:#14365d;font-size:2rem;font-weight:1000;
+    margin-bottom:7px;
+  }
+  .small{font-size:.85rem;opacity:.8}
+  #game{
+    width:min(1050px,100%);
+    display:block;
+  }
+  .scorebar{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .box{
+    background:rgba(10,28,52,.92);
+    border:2px solid white;
+    border-radius:14px;
+    padding:8px;
+  }
+  .label{font-size:.75rem;opacity:.75;text-transform:uppercase;font-weight:bold}
+  .value{font-size:1.35rem;font-weight:1000}
+  #field{
+    height:min(62vh,590px);
+    min-height:390px;
+    width:100%;
+    border:5px solid white;
+    border-radius:22px;
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse at 50% 72%, #b8753b 0 16%, transparent 16.5%),
+      radial-gradient(ellipse at 50% 68%, #228a4d 0 53%, transparent 53.5%),
+      linear-gradient(#6bd0ff 0 24%, #278c4d 24% 100%);
+    box-shadow:inset 0 0 60px rgba(0,0,0,.28);
+  }
+  #sign{
+    position:absolute;top:8%;left:50%;transform:translateX(-50%);
+    background:#10223b;border:4px solid white;border-radius:14px;
+    padding:8px 16px;color:#ffd166;font-weight:1000;
+  }
+  #fence{
+    position:absolute;top:28%;left:5%;right:5%;height:18px;
+    background:#0b3b24;border:3px solid white;border-radius:9px;
+  }
+  #diamond{
+    position:absolute;left:50%;bottom:13%;
+    width:210px;height:210px;
+    transform:translateX(-50%) rotate(45deg);
+    background:#b8753b;border:5px solid #f7ddb0;border-radius:18px;
+  }
+  #batter{
+    position:absolute;left:50%;bottom:11%;
+    transform:translateX(-50%);
+    width:100px;height:145px;z-index:5;
+  }
+  #head{
+    width:42px;height:42px;background:#ffd0a6;border-radius:50%;
+    border:3px solid #5b321f;margin:0 auto -4px;
+  }
+  #body{
+    width:64px;height:78px;background:#fff;border:4px solid #14365d;border-radius:14px;
+    margin:auto;color:#14365d;font-size:1.8rem;font-weight:1000;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #bat{
+    position:absolute;right:3px;top:58px;width:10px;height:86px;
+    background:#c98c43;border-radius:8px;
+    transform:rotate(-50deg);transform-origin:50% 10%;
+  }
+  .swing #bat{transform:rotate(80deg)}
+  #ball{
+    display:none;
+    position:absolute;
+    width:22px;height:22px;background:white;border:2px solid #e63946;border-radius:50%;
+    z-index:8;
+  }
+  #message{
+    position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);
+    font-size:clamp(2rem,7vw,5rem);
+    font-weight:1000;
+    color:white;
+    text-shadow:4px 4px #10223b;
+    opacity:0;
+    z-index:20;
+  }
+  #message.show{animation:pop 1s ease}
+  @keyframes pop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+    20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+    85%{opacity:1}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(.95)}
+  }
+  .meter{
+    position:relative;
+    width:min(650px,100%);
+    height:30px;
+    margin:12px auto;
+    background:#10223b;
+    border:3px solid white;
+    border-radius:18px;
+    overflow:hidden;
+  }
+  #zone{position:absolute;left:43%;width:14%;height:100%;background:#22c55e}
+  #needle{position:absolute;left:0;top:-5px;width:7px;height:38px;background:#ffd166;border-radius:8px}
+  .controls{
+    margin-top:10px;
+    background:rgba(10,28,52,.92);
+    border:2px solid white;
+    border-radius:18px;
+    padding:10px;
+  }
+  #swingBtn{font-size:1.3rem;min-width:200px;padding:16px 24px}
+  .secondary{background:#eef6ff;box-shadow:0 5px 0 #9eb3c9}
+  ol{text-align:left;display:inline-block}
+  @media(max-width:700px){
+    .scorebar{grid-template-columns:repeat(2,1fr)}
+    #field{min-height:360px}
+    #diamond{width:165px;height:165px}
+  }
+</style>
+</head>
+<body>
+
+<div id="selectScreen" class="screen active">
+  <div class="panel">
+    <h1>Backyard Bombers</h1>
+    <h2>Home Run Derby</h2>
+    <p>Pick your player. Then swing when the yellow marker is in the green sweet spot.</p>
+
+    <div class="player-grid">
+      <button class="player selected" onclick="choosePlayer('Clayton',5,'2B',this)"><div class="jersey">5</div><b>Clayton</b><span class="small">2B</span></button>
+      <button class="player" onclick="choosePlayer('Brock',29,'1B',this)"><div class="jersey">29</div><b>Brock</b><span class="small">1B</span></button>
+      <button class="player" onclick="choosePlayer('Carter',28,'RF',this)"><div class="jersey">28</div><b>Carter</b><span class="small">RF</span></button>
+      <button class="player" onclick="choosePlayer('Sidd',7,'LF',this)"><div class="jersey">7</div><b>Sidd</b><span class="small">LF</span></button>
+      <button class="player" onclick="choosePlayer('Luke',23,'C',this)"><div class="jersey">23</div><b>Luke</b><span class="small">C</span></button>
+      <button class="player" onclick="choosePlayer('Winston',20,'SS',this)"><div class="jersey">20</div><b>Winston</b><span class="small">SS</span></button>
+      <button class="player" onclick="choosePlayer('Andrew',17,'3B',this)"><div class="jersey">17</div><b>Andrew</b><span class="small">3B</span></button>
+      <button class="player" onclick="choosePlayer('Nash',99,'CF',this)"><div class="jersey">99</div><b>Nash</b><span class="small">CF</span></button>
+      <button class="player" onclick="choosePlayer('Fisher',13,'P',this)"><div class="jersey">13</div><b>Fisher</b><span class="small">P</span></button>
+      <button class="player" onclick="choosePlayer('Dom',34,'Bench Boss',this)"><div class="jersey">34</div><b>Dom</b><span class="small">Bench Boss</span></button>
+    </div>
+
+    <button onclick="startGame()">Start Derby</button>
+  </div>
+</div>
+
+<div id="gameScreen" class="screen">
+  <div id="game">
+    <div class="scorebar">
+      <div class="box"><div class="label">Player</div><div id="scorePlayer" class="value">Clayton #5</div></div>
+      <div class="box"><div class="label">Home Runs</div><div id="hrValue" class="value">0</div></div>
+      <div class="box"><div class="label">Swing</div><div id="swingValue" class="value">0 / 10</div></div>
+      <div class="box"><div class="label">Best</div><div id="bestValue" class="value">0 ft</div></div>
+    </div>
+
+    <div id="field">
+      <div id="sign">BME BALLPARK</div>
+      <div id="fence"></div>
+      <div id="diamond"></div>
+      <div id="ball"></div>
+      <div id="batter">
+        <div id="head"></div>
+        <div id="body">5</div>
+        <div id="bat"></div>
+      </div>
+      <div id="message"></div>
+    </div>
+
+    <div class="controls">
+      <div class="meter"><div id="zone"></div><div id="needle"></div></div>
+      <button id="swingBtn" onclick="swing()">Swing</button>
+      <button class="secondary" onclick="startGame()">Restart</button>
+      <button class="secondary" onclick="goSelect()">Change Player</button>
+      <p class="small">Spacebar also swings.</p>
+    </div>
+  </div>
+</div>
+
+<div id="endScreen" class="screen">
+  <div class="panel">
+    <h1 id="endTitle">Derby Complete</h1>
+    <h2 id="endStats"></h2>
+    <p id="endNote"></p>
+    <h2>Leaderboard</h2>
+    <ol id="leaders"></ol>
+    <br>
+    <button onclick="startGame()">Play Again</button>
+    <button class="secondary" onclick="goSelect()">Choose New Player</button>
+  </div>
+</div>
+
+<script>
+var player = {name:"Clayton", number:5, position:"2B"};
+var homeRuns = 0;
+var swings = 0;
+var best = 0;
+var total = 10;
+var needlePos = 0;
+var needleDir = 1;
+var timer = null;
+var locked = false;
+var playing = false;
+
+function show(id){
+  document.getElementById("selectScreen").className = "screen";
+  document.getElementById("gameScreen").className = "screen";
+  document.getElementById("endScreen").className = "screen";
+  document.getElementById(id).className = "screen active";
+}
+
+function choosePlayer(name, number, position, el){
+  player = {name:name, number:number, position:position};
+  var cards = document.getElementsByClassName("player");
+  for(var i=0;i<cards.length;i++){ cards[i].classList.remove("selected"); }
+  if(el){ el.classList.add("selected"); }
+}
+
+function update(){
+  document.getElementById("scorePlayer").innerText = player.name + " #" + player.number;
+  document.getElementById("hrValue").innerText = homeRuns;
+  document.getElementById("swingValue").innerText = swings + " / " + total;
+  document.getElementById("bestValue").innerText = best + " ft";
+  document.getElementById("body").innerText = player.number;
+}
+
+function startGame(){
+  homeRuns = 0;
+  swings = 0;
+  best = 0;
+  locked = false;
+  playing = true;
+  update();
+  show("gameScreen");
+  startMeter();
+}
+
+function startMeter(){
+  if(timer){ clearInterval(timer); }
+  timer = setInterval(function(){
+    if(!playing || locked){ return; }
+    needlePos += needleDir * 2.5;
+    if(needlePos >= 100){ needlePos = 100; needleDir = -1; }
+    if(needlePos <= 0){ needlePos = 0; needleDir = 1; }
+    document.getElementById("needle").style.left = "calc(" + needlePos + "% - 3px)";
+  }, 16);
+}
+
+function swing(){
+  if(!playing || locked || swings >= total){ return; }
+  locked = true;
+  swings++;
+  var batter = document.getElementById("batter");
+  batter.classList.add("swing");
+  setTimeout(function(){ batter.classList.remove("swing"); }, 150);
+
+  var diff = Math.abs(needlePos - 50);
+  var distance = Math.round(460 - diff * 7 + (Math.random()*28 - 10));
+  var isHR = false;
+  var text = "MISS";
+
+  if(diff <= 7){
+    distance = Math.max(distance, 410 + Math.floor(Math.random()*70));
+    isHR = true;
+    text = "HOME RUN";
+  } else if(diff <= 15){
+    distance = Math.max(distance, 320 + Math.floor(Math.random()*90));
+    isHR = distance >= 380;
+    text = isHR ? "HOME RUN" : "DEEP FLY";
+  } else if(diff <= 25){
+    distance = Math.max(distance, 180);
+    isHR = distance >= 390;
+    text = isHR ? "HOME RUN" : "FLY BALL";
+  } else {
+    distance = Math.max(25, 165 - Math.floor(diff*2) + Math.floor(Math.random()*45));
+    text = diff > 38 ? "WHIFF" : "GROUNDER";
+  }
+
+  if(isHR){ homeRuns++; }
+  if(distance > best){ best = distance; }
+
+  animateBall(isHR, distance, function(){
+    flash((isHR ? "HOME RUN" : text) + "<br>" + distance + " ft");
+    update();
+    setTimeout(function(){
+      locked = false;
+      if(swings >= total){ endGame(); }
+    }, 650);
+  });
+}
+
+function animateBall(isHR, distance, done){
+  var ball = document.getElementById("ball");
+  var field = document.getElementById("field");
+  var startX = field.clientWidth * .50;
+  var startY = field.clientHeight * .64;
+  var endX = field.clientWidth * (.18 + Math.random()*.64);
+  var endY = isHR ? field.clientHeight * (.19 + Math.random()*.08) : field.clientHeight * (.34 + Math.random()*.24);
+  var arc = isHR ? 175 : 90;
+  var step = 0;
+
+  ball.style.display = "block";
+
+  var flight = setInterval(function(){
+    step++;
+    var t = step / 30;
+    if(t > 1){ t = 1; }
+    var x = startX + (endX - startX) * t;
+    var y = startY + (endY - startY) * t - Math.sin(t * Math.PI) * arc;
+    ball.style.left = x + "px";
+    ball.style.top = y + "px";
+    if(t >= 1){
+      clearInterval(flight);
+      setTimeout(function(){
+        ball.style.display = "none";
+        done();
+      }, 100);
+    }
+  }, 18);
+}
+
+function flash(html){
+  var m = document.getElementById("message");
+  m.innerHTML = html;
+  m.classList.remove("show");
+  void m.offsetWidth;
+  m.classList.add("show");
+}
+
+function endGame(){
+  playing = false;
+  if(timer){ clearInterval(timer); }
+  document.getElementById("endTitle").innerText = player.name + "'s Derby Is Complete";
+  document.getElementById("endStats").innerText = homeRuns + " home runs • best shot " + best + " ft";
+
+  var note = "Run it back and beat the score.";
+  if(homeRuns >= 8){ note = "Absolute legend. The scoreboard may never recover."; }
+  else if(homeRuns >= 5){ note = "Big-time power. That was a serious derby round."; }
+  else if(homeRuns >= 2){ note = "Solid round. A few perfect swings and it is on."; }
+  document.getElementById("endNote").innerText = note;
+
+  saveScore();
+  drawLeaders();
+  show("endScreen");
+}
+
+function saveScore(){
+  var scores = [];
+  try { scores = JSON.parse(localStorage.getItem("derbyScores") || "[]"); } catch(e){}
+  scores.push({name:player.name, number:player.number, hr:homeRuns, best:best});
+  scores.sort(function(a,b){ return b.hr - a.hr || b.best - a.best; });
+  scores = scores.slice(0,8);
+  try { localStorage.setItem("derbyScores", JSON.stringify(scores)); } catch(e){}
+}
+
+function drawLeaders(){
+  var scores = [];
+  try { scores = JSON.parse(localStorage.getItem("derbyScores") || "[]"); } catch(e){}
+  var list = document.getElementById("leaders");
+  list.innerHTML = "";
+  for(var i=0;i<scores.length;i++){
+    var li = document.createElement("li");
+    li.innerText = scores[i].name + " #" + scores[i].number + ": " + scores[i].hr + " HR, " + scores[i].best + " ft";
+    list.appendChild(li);
+  }
+}
+
+function goSelect(){
+  playing = false;
+  if(timer){ clearInterval(timer); }
+  show("selectScreen");
+}
+
+document.addEventListener("keydown", function(e){
+  if(e.code === "Space"){
+    e.preventDefault();
+    swing();
+  }
+});
+</script>
+</body>
+</html>
