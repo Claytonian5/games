@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Backyard Bombers Defense Challenge</title>
+<title>Backyard Bombers Throwing Challenge</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 *{box-sizing:border-box}
@@ -10,15 +10,15 @@
   --navy:#10223b;
   --gold:#ffd166;
   --grass:#208a4d;
-  --grass-dark:#176d3c;
   --dirt:#b8753b;
-  --chalk:#fff7df;
   --red:#ef4444;
+  --green:#22c55e;
+  --blue:#38bdf8;
 }
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:linear-gradient(#70d4ff 0 34%,#1d7d46 34% 100%);
+  background:linear-gradient(#73d5ff 0 33%,#1f8f4d 33% 100%);
   color:white;
   text-align:center;
   min-height:100vh;
@@ -93,8 +93,8 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
 .scorebar div{background:rgba(12,30,54,.94);border:2px solid white;border-radius:14px;padding:8px}
 .scorebar strong{display:block;font-size:1.18rem}
 #field{
-  height:min(70vh,700px);
-  min-height:470px;
+  height:min(68vh,690px);
+  min-height:475px;
   width:100%;
   border:5px solid white;
   border-radius:26px;
@@ -142,20 +142,6 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
   overflow:visible;
   pointer-events:none;
 }
-.distance-mark{
-  position:absolute;
-  font-weight:1000;
-  color:white;
-  text-shadow:2px 2px #111;
-  z-index:7;
-  font-size:.88rem;
-  background:rgba(0,0,0,.22);
-  border-radius:999px;
-  padding:3px 8px;
-}
-.d330l{left:8%;top:27.5%}
-.d400{left:50%;top:20.8%;transform:translateX(-50%)}
-.d330r{right:8%;top:27.5%}
 .diamond{
   position:absolute;
   left:50%;
@@ -186,78 +172,57 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
   background:#fff;
   border:2px solid #ddd;
   transform:rotate(45deg);
-  z-index:9;
+  z-index:10;
   box-shadow:0 0 8px rgba(0,0,0,.25);
 }
-.base.active{outline:5px solid var(--gold);box-shadow:0 0 20px var(--gold)}
+.base.targetBase{outline:6px solid var(--gold);box-shadow:0 0 24px var(--gold)}
 .home{left:50%;bottom:9.2%;transform:translateX(-50%) rotate(45deg)}
 .first{left:calc(50% + 126px);bottom:calc(8.5% + 126px)}
 .second{left:50%;bottom:calc(8.5% + 252px);transform:translateX(-50%) rotate(45deg)}
 .third{left:calc(50% - 146px);bottom:calc(8.5% + 126px)}
-.base-label{
+#fielder{
   position:absolute;
-  z-index:10;
-  font-weight:1000;
-  font-size:.72rem;
-  color:#10223b;
-  pointer-events:none;
-}
-.lhome{left:50%;bottom:6.5%;transform:translateX(-50%)}
-.lfirst{left:calc(50% + 138px);bottom:calc(8.5% + 151px)}
-.lsecond{left:50%;bottom:calc(8.5% + 279px);transform:translateX(-50%)}
-.lthird{left:calc(50% - 163px);bottom:calc(8.5% + 151px)}
-#playerSprite{
-  position:absolute;
-  left:50%;
-  bottom:35%;
-  transform:translate(-50%,0);
-  width:70px;
-  height:92px;
-  z-index:24;
-  transition:left .16s linear,bottom .16s linear,transform .16s linear;
+  width:78px;
+  height:104px;
+  z-index:30;
   filter:drop-shadow(0 6px 4px rgba(0,0,0,.35));
+  transition:left .35s ease,bottom .35s ease,transform .25s ease;
 }
-.head{width:30px;height:30px;background:#ffd0a6;border:3px solid #5b321f;border-radius:50%;margin:0 auto -2px;position:relative}
-.cap{position:absolute;left:1px;top:-8px;width:28px;height:14px;background:#14365d;border-radius:16px 16px 4px 4px}
-.body{width:48px;height:54px;background:white;border:4px solid #14365d;border-radius:12px;margin:0 auto;color:#14365d;font-size:1.35rem;font-weight:1000;display:flex;align-items:center;justify-content:center}
-.glove{position:absolute;right:4px;top:42px;width:24px;height:24px;background:#7c3f16;border:3px solid #4a240c;border-radius:50%;transform:rotate(-20deg)}
-#playerSprite.dive{transform:translate(-50%,0) rotate(-18deg) scale(1.08)}
-#playerSprite.jump{transform:translate(-50%,-16px) scale(1.05)}
-#ball{
+#fielder.crowhop{transform:translate(-50%,0) scale(1.08)}
+.personHead{width:32px;height:32px;background:#ffd0a6;border:3px solid #5b321f;border-radius:50%;margin:0 auto -2px;position:relative}
+.cap{position:absolute;left:1px;top:-8px;width:30px;height:15px;background:#14365d;border-radius:16px 16px 4px 4px}
+.personBody{width:52px;height:58px;background:white;border:4px solid #14365d;border-radius:12px;margin:0 auto;color:#14365d;font-size:1.35rem;font-weight:1000;display:flex;align-items:center;justify-content:center}
+.glove{position:absolute;right:4px;top:44px;width:25px;height:25px;background:#7c3f16;border:3px solid #4a240c;border-radius:50%;transform:rotate(-20deg)}
+#runner{
   position:absolute;
-  width:24px;
-  height:24px;
+  width:54px;
+  height:75px;
+  z-index:24;
+  filter:drop-shadow(0 5px 4px rgba(0,0,0,.35));
+  transition:left linear,bottom linear;
+}
+#runner .personBody{width:42px;height:48px;background:#fee2e2;border-color:#7f1d1d;color:#7f1d1d;font-size:.9rem}
+#ball,#throwBall{
+  position:absolute;
+  width:22px;
+  height:22px;
   background:white;
   border:2px solid #e63946;
   border-radius:50%;
-  z-index:40;
+  z-index:42;
   display:none;
   box-shadow:0 0 12px rgba(255,255,255,.9);
 }
-#throwBall{
+#ballSpot{
   position:absolute;
-  width:20px;
-  height:20px;
-  background:white;
-  border:2px solid #e63946;
+  width:70px;height:70px;
+  border:5px solid rgba(255,255,255,.95);
+  background:rgba(255,209,102,.25);
   border-radius:50%;
-  z-index:41;
-  display:none;
-  box-shadow:0 0 12px rgba(255,255,255,.9);
-}
-.target{
-  position:absolute;
-  width:74px;
-  height:74px;
-  border:5px solid rgba(255,255,255,.94);
-  border-radius:50%;
-  z-index:18;
+  z-index:20;
   display:none;
   box-shadow:0 0 20px rgba(255,209,102,.9);
-  background:rgba(255,209,102,.25);
-  animation:pulse 1s infinite;
 }
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 #message{
   position:absolute;
   left:50%;
@@ -274,56 +239,49 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
 }
 #message.show{animation:pop 1.05s ease}
 @keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.95)}}
-.fielder{
-  position:absolute;
-  width:42px;
-  height:58px;
-  z-index:6;
-  text-align:center;
-  filter:drop-shadow(0 4px 3px rgba(0,0,0,.3));
-}
-.fielder .fhead{width:19px;height:19px;border-radius:50%;background:#ffd0a6;border:2px solid #5b321f;margin:0 auto -1px}
-.fielder .fbody{width:30px;height:34px;background:#f8fbff;border:3px solid #14365d;border-radius:9px;margin:0 auto;color:#14365d;font-weight:1000;font-size:.72rem;display:flex;align-items:center;justify-content:center}
-.fielder label{display:block;margin-top:2px;font-size:.62rem;font-weight:1000;color:white;text-shadow:1px 1px #111}
-.p{left:50%;bottom:35%;transform:translateX(-50%)}
-.c{left:50%;bottom:3%;transform:translateX(-50%)}
-.oneb{left:62%;bottom:30%}
-.twob{left:54%;bottom:43%}
-.ss{left:41%;bottom:43%}
-.threeb{left:34%;bottom:30%}
-.lf{left:23%;bottom:52%}
-.cf{left:50%;bottom:58%;transform:translateX(-50%)}
-.rf{right:23%;bottom:52%}
 .controls{
   margin-top:10px;
   background:rgba(12,30,54,.94);
   border:2px solid white;
   border-radius:18px;
-  padding:10px;
+  padding:12px;
 }
-#moveZone{
-  display:grid;
-  grid-template-columns:repeat(3,74px);
-  gap:7px;
-  justify-content:center;
-  align-items:center;
-  margin:8px auto;
+.meter-wrap{max-width:720px;margin:8px auto 12px}
+.meter-label{font-size:.9rem;font-weight:900;text-transform:uppercase;opacity:.9;margin-bottom:4px}
+.meter{
+  position:relative;
+  width:100%;
+  height:32px;
+  background:#10223b;
+  border:3px solid white;
+  border-radius:18px;
+  overflow:hidden;
 }
-.move{width:74px;height:52px;padding:0;margin:0;font-size:1.35rem;background:#eef6ff;box-shadow:0 4px 0 #9eb3c9}
-.action-row button{min-width:126px}
-.base-row button{min-width:88px;background:#fff7d1}
+.zone-good{position:absolute;top:0;bottom:0;background:rgba(34,197,94,.55);box-shadow:0 0 14px #22c55e}
+.zone-perfect{position:absolute;top:0;bottom:0;background:rgba(255,209,102,.9);box-shadow:0 0 14px #ffd166}
+.needle{position:absolute;top:-5px;width:7px;height:40px;background:white;border-radius:8px;left:0}
+#actionButton{font-size:1.45rem;min-width:240px;padding:18px 28px}
+#prompt{font-size:1.05rem;font-weight:900;margin:8px 0 0}
 #leaderboard{text-align:left;display:inline-block}
 .confetti{position:absolute;width:9px;height:16px;top:-20px;z-index:70;animation:fall 2.4s linear forwards}
 @keyframes fall{to{transform:translateY(720px) rotate(720deg);opacity:0}}
 @media(max-width:760px){
  .scorebar{grid-template-columns:repeat(2,1fr)}.scorebar div:first-child{grid-column:1/-1}
- #field{min-height:430px}.diamond{width:190px;height:190px}.path{width:160px;height:160px}
- .first{left:calc(50% + 93px);bottom:calc(8.5% + 93px)}.second{bottom:calc(8.5% + 186px)}.third{left:calc(50% - 113px);bottom:calc(8.5% + 93px)}
- .lfirst{left:calc(50% + 105px);bottom:calc(8.5% + 116px)}.lsecond{bottom:calc(8.5% + 212px)}.lthird{left:calc(50% - 132px);bottom:calc(8.5% + 116px)}
- .wall-svg{top:19%;height:22%}.stands{height:48px}.scoreboard{font-size:.8rem}.distance-mark{font-size:.74rem}
- .fielder{width:34px;height:48px}.fielder .fhead{width:16px;height:16px}.fielder .fbody{width:25px;height:28px;font-size:.6rem}.fielder label{font-size:.52rem}
- #moveZone{grid-template-columns:repeat(3,64px)}.move{width:64px;height:48px}
- .base-row button{min-width:70px;font-size:.82rem}
+ #field{min-height:430px}
+ .diamond{width:190px;height:190px}
+ .path{width:160px;height:160px}
+ .first{left:calc(50% + 93px);bottom:calc(8.5% + 93px)}
+ .second{bottom:calc(8.5% + 186px)}
+ .third{left:calc(50% - 113px);bottom:calc(8.5% + 93px)}
+ .wall-svg{top:19%;height:22%}
+ .stands{height:48px}
+ .scoreboard{font-size:.78rem}
+ #fielder{width:62px;height:86px}
+ #runner{width:45px;height:64px}
+ .personHead{width:25px;height:25px}
+ .personBody{width:42px;height:48px;font-size:1.1rem}
+ .glove{top:36px;width:21px;height:21px}
+ #actionButton{min-width:205px;font-size:1.18rem}
 }
 </style>
 </head>
@@ -332,8 +290,8 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
 <section id="select-screen" class="screen active">
   <div class="panel">
     <h1>Backyard Bombers</h1>
-    <h2>Defense Challenge</h2>
-    <p>Pick your player. Run to the ball, field it, then make an accurate throw to the correct base.</p>
+    <h2>Throwing Challenge</h2>
+    <p>Pick your player. Tap the two timing points: first to field/crow hop, then to release an accurate throw before the runner gets there.</p>
     <div class="player-grid">
           <button class="player selected" type="button" data-name="Clayton" data-number="5">
             <span class="jersey">5</span><strong>Clayton</strong>
@@ -387,8 +345,8 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
       <button class="mode" type="button" data-mode="mlb">MLB</button>
       <button class="mode" type="button" data-mode="mvp">All Star/MVP</button>
     </div>
-    <button id="start-button" class="big" type="button">Start Defense Challenge</button>
-    <p><span class="badge">10 plays</span><span class="badge">3 errors</span><span class="badge">choose the base</span><span class="badge">accurate throws</span></p>
+    <button id="start-button" class="big" type="button">Start Throwing Challenge</button>
+    <p><span class="badge">2 timing clicks</span><span class="badge">throw runner out</span><span class="badge">10 plays</span><span class="badge">3 safe calls and you're done</span></p>
   </div>
 </section>
 
@@ -396,64 +354,57 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
   <div class="game-shell">
     <div class="scorebar">
       <div><small>Player</small><strong id="player-label">Clayton #5</strong></div>
-      <div><small>Outs Made</small><strong id="outs-label">0</strong></div>
-      <div><small>Errors</small><strong id="errors-label">0 / 3</strong></div>
+      <div><small>Outs</small><strong id="outs-label">0</strong></div>
+      <div><small>Safe</small><strong id="safe-label">0 / 3</strong></div>
       <div><small>Play</small><strong id="play-label">0 / 10</strong></div>
-      <div><small>Throw To</small><strong id="throw-label">1st</strong></div>
+      <div><small>Target</small><strong id="target-label">1st</strong></div>
     </div>
 
     <div id="field">
       <div class="stands"></div>
-      <div class="scoreboard">BACKYARD BOMBERS DEFENSE</div>
+      <div class="scoreboard">BACKYARD BOMBERS THROWING CHALLENGE</div>
       <svg class="wall-svg" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true">
         <path d="M45,165 C210,30 790,30 955,165" fill="none" stroke="#0b3b24" stroke-width="34" stroke-linecap="round"/>
         <path d="M45,165 C210,30 790,30 955,165" fill="none" stroke="white" stroke-width="7" stroke-linecap="round"/>
         <path d="M45,165 C210,30 790,30 955,165" fill="none" stroke="#1b5e3a" stroke-width="18" stroke-dasharray="26 18" stroke-linecap="round"/>
       </svg>
-      <div class="distance-mark d330l">330'</div><div class="distance-mark d400">400'</div><div class="distance-mark d330r">330'</div>
-
-      <div class="fielder lf"><div class="fhead"></div><div class="fbody">LF</div><label>LF</label></div>
-      <div class="fielder cf"><div class="fhead"></div><div class="fbody">CF</div><label>CF</label></div>
-      <div class="fielder rf"><div class="fhead"></div><div class="fbody">RF</div><label>RF</label></div>
-      <div class="fielder ss"><div class="fhead"></div><div class="fbody">SS</div><label>SS</label></div>
-      <div class="fielder twob"><div class="fhead"></div><div class="fbody">2B</div><label>2B</label></div>
-      <div class="fielder threeb"><div class="fhead"></div><div class="fbody">3B</div><label>3B</label></div>
-      <div class="fielder oneb"><div class="fhead"></div><div class="fbody">1B</div><label>1B</label></div>
-      <div class="fielder p"><div class="fhead"></div><div class="fbody">P</div><label>P</label></div>
-      <div class="fielder c"><div class="fhead"></div><div class="fbody">C</div><label>C</label></div>
 
       <div class="path"></div><div class="diamond"></div>
-      <div id="base-home" class="base home"></div><div id="base-first" class="base first active"></div><div id="base-second" class="base second"></div><div id="base-third" class="base third"></div>
-      <div class="base-label lhome">HOME</div><div class="base-label lfirst">1ST</div><div class="base-label lsecond">2ND</div><div class="base-label lthird">3RD</div>
+      <div id="base-home" class="base home"></div>
+      <div id="base-first" class="base first targetBase"></div>
+      <div id="base-second" class="base second"></div>
+      <div id="base-third" class="base third"></div>
 
-      <div id="target" class="target"></div>
+      <div id="ballSpot"></div>
       <div id="ball"></div>
       <div id="throwBall"></div>
-      <div id="playerSprite">
-        <div class="head"><div class="cap"></div></div>
-        <div id="playerJersey" class="body">5</div>
+
+      <div id="runner">
+        <div class="personHead"><div class="cap"></div></div>
+        <div class="personBody">RUN</div>
+      </div>
+
+      <div id="fielder">
+        <div class="personHead"><div class="cap"></div></div>
+        <div id="fielderJersey" class="personBody">5</div>
         <div class="glove"></div>
       </div>
+
       <div id="message"></div>
     </div>
 
     <div class="controls">
-      <div id="moveZone">
-        <span></span><button class="move" id="up" type="button">⬆️</button><span></span>
-        <button class="move" id="left" type="button">⬅️</button><button class="move" id="down" type="button">⬇️</button><button class="move" id="right" type="button">➡️</button>
+      <div class="meter-wrap">
+        <div id="meterLabel" class="meter-label">Ready</div>
+        <div class="meter">
+          <div id="goodZone" class="zone-good"></div>
+          <div id="perfectZone" class="zone-perfect"></div>
+          <div id="needle" class="needle"></div>
+        </div>
       </div>
-      <div class="base-row">
-        <button type="button" data-base="first">Throw 1st</button>
-        <button type="button" data-base="second">Throw 2nd</button>
-        <button type="button" data-base="third">Throw 3rd</button>
-        <button type="button" data-base="home">Throw Home</button>
-      </div>
-      <div class="action-row">
-        <button id="dive-button" class="secondary" type="button">Dive</button>
-        <button id="jump-button" class="secondary" type="button">Jump</button>
-        <button id="restart-button" class="secondary" type="button">Restart</button>
-      </div>
-      <p id="playPrompt">Get close to the glowing circle, field the ball, then throw to the correct base.</p>
+      <button id="actionButton" type="button">Start Play</button>
+      <button id="restart-button" class="secondary" type="button">Restart</button>
+      <p id="prompt">Tap Start Play. Then time the two clicks.</p>
     </div>
   </div>
 </section>
@@ -463,7 +414,7 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
     <h1 id="end-title">Game Complete</h1>
     <h2 id="end-stats"></h2>
     <p id="end-note"></p>
-    <h2>Defense Records</h2>
+    <h2>Throwing Records</h2>
     <ol id="leaderboard"></ol>
     <button id="again-button" class="big" type="button">Play Again</button>
     <button id="new-player-button" class="secondary" type="button">Choose New Player</button>
@@ -476,16 +427,20 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
   var selected = {name:"Clayton", number:5};
   var mode = "rookie";
   var settings = {
-    rookie:{speed:1080, tolerance:11.5, throwWindow:130, name:"Rookie"},
-    mlb:{speed:820, tolerance:8.7, throwWindow:95, name:"MLB"},
-    mvp:{speed:620, tolerance:6.6, throwWindow:70, name:"All Star/MVP"}
+    rookie:{needle:1.9, runner:4100, good:18, perfect:7, name:"Rookie"},
+    mlb:{needle:2.8, runner:3300, good:14, perfect:5.5, name:"MLB"},
+    mvp:{needle:3.8, runner:2650, good:10, perfect:4, name:"All Star/MVP"}
   };
-  var made = 0, errors = 0, plays = 0, streak = 0;
-  var playerX = 50, playerY = 35;
-  var targetX = 50, targetY = 35;
-  var ballLive = false, fielded = false, currentType = "Grounder";
-  var correctBase = "first";
+
+  var outs = 0, safes = 0, plays = 0, streak = 0;
+  var phase = "idle";
+  var needle = 0, dir = 1, meterTimer = null;
+  var fieldScore = 0, throwScore = 0;
+  var targetBase = "first";
+  var fielderX = 36, fielderY = 36, ballX = 36, ballY = 36;
   var audioCtx = null;
+  var runnerTimer = null;
+
   var baseCoords = {
     first: {x:63, y:36},
     second: {x:50, y:63},
@@ -495,18 +450,17 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
 
   function byId(id){ return document.getElementById(id); }
   function show(id){ ["select-screen","game-screen","end-screen"].forEach(function(s){ byId(s).classList.remove("active"); }); byId(id).classList.add("active"); }
+
   function audio(){ if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } if(audioCtx.state === "suspended"){ audioCtx.resume(); } return audioCtx; }
   function tone(freq,dur,type,vol,delay){
     try{ var ctx=audio(),osc=ctx.createOscillator(),gain=ctx.createGain(); osc.type=type||"square"; osc.frequency.setValueAtTime(freq,ctx.currentTime+(delay||0)); gain.gain.setValueAtTime(0.0001,ctx.currentTime+(delay||0)); gain.gain.exponentialRampToValueAtTime(vol||.06,ctx.currentTime+(delay||0)+.02); gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+(delay||0)+dur); osc.connect(gain); gain.connect(ctx.destination); osc.start(ctx.currentTime+(delay||0)); osc.stop(ctx.currentTime+(delay||0)+dur+.04);}catch(e){}
   }
-  function noise(dur,vol,delay){
-    try{ var ctx=audio(),size=ctx.sampleRate*dur,buf=ctx.createBuffer(1,size,ctx.sampleRate),data=buf.getChannelData(0); for(var i=0;i<size;i++){ data[i]=(Math.random()*2-1)*(1-i/size); } var source=ctx.createBufferSource(),gain=ctx.createGain(); source.buffer=buf; gain.gain.setValueAtTime(vol||.05,ctx.currentTime+(delay||0)); gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+(delay||0)+dur); source.connect(gain); gain.connect(ctx.destination); source.start(ctx.currentTime+(delay||0)); }catch(e){}
-  }
-  function applause(){ for(var i=0;i<18;i++){ noise(.055,.055,i*.05); } }
+  function noise(dur,vol,delay){ try{ var ctx=audio(),size=ctx.sampleRate*dur,buf=ctx.createBuffer(1,size,ctx.sampleRate),data=buf.getChannelData(0); for(var i=0;i<size;i++){ data[i]=(Math.random()*2-1)*(1-i/size); } var source=ctx.createBufferSource(),gain=ctx.createGain(); source.buffer=buf; gain.gain.setValueAtTime(vol||.05,ctx.currentTime+(delay||0)); gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+(delay||0)+dur); source.connect(gain); gain.connect(ctx.destination); source.start(ctx.currentTime+(delay||0)); }catch(e){} }
   function crack(){ tone(115,.05,"sawtooth",.18,0); tone(380,.06,"square",.07,.02); }
-  function catchSound(){ tone(260,.09,"triangle",.07,0); tone(520,.08,"triangle",.05,.05); }
+  function glove(){ tone(260,.09,"triangle",.07,0); tone(520,.08,"triangle",.05,.05); }
   function throwSound(){ tone(450,.05,"sine",.06,0); tone(720,.06,"sine",.04,.06); }
-  function errorSound(){ tone(140,.16,"sawtooth",.06,0); tone(95,.20,"sawtooth",.06,.14); }
+  function applause(){ for(var i=0;i<18;i++){ noise(.055,.055,i*.05); } }
+  function safeSound(){ tone(130,.18,"sawtooth",.06,0); tone(95,.2,"sawtooth",.06,.14); }
 
   function choosePlayer(button){
     selected = {name:button.getAttribute("data-name"), number:Number(button.getAttribute("data-number"))};
@@ -518,179 +472,239 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
     document.querySelectorAll(".mode").forEach(function(b){ b.classList.remove("selected"); });
     button.classList.add("selected");
   }
+
   function update(){
     byId("player-label").textContent = selected.name + " #" + selected.number + " • " + settings[mode].name;
-    byId("outs-label").textContent = made;
-    byId("errors-label").textContent = errors + " / 3";
+    byId("outs-label").textContent = outs;
+    byId("safe-label").textContent = safes + " / 3";
     byId("play-label").textContent = plays + " / 10";
-    byId("throw-label").textContent = baseName(correctBase);
-    byId("playerJersey").textContent = selected.number;
-    highlightBase();
+    byId("target-label").textContent = baseName(targetBase);
+    byId("fielderJersey").textContent = selected.number;
   }
   function baseName(b){ return b==="first"?"1st":b==="second"?"2nd":b==="third"?"3rd":"Home"; }
-  function highlightBase(){
-    ["home","first","second","third"].forEach(function(b){ byId("base-"+b).classList.remove("active"); });
-    byId("base-"+correctBase).classList.add("active");
-  }
+
   function startGame(){
-    made=0; errors=0; plays=0; streak=0; playerX=50; playerY=35; ballLive=false; fielded=false;
-    show("game-screen"); update(); movePlayer(); flash("GET READY"); setTimeout(newPlay,850);
-  }
-  function movePlayer(){
-    var p=byId("playerSprite");
-    p.style.left=playerX+"%";
-    p.style.bottom=playerY+"%";
-  }
-  function move(dx,dy){
-    if(!ballLive && !fielded) return;
-    playerX=Math.max(10,Math.min(90,playerX+dx));
-    playerY=Math.max(3,Math.min(64,playerY+dy));
-    movePlayer();
-    checkField();
-  }
-  function newPlay(){
-    if(errors>=3 || made>=10){ endGame(); return; }
-    plays++;
-    fielded=false; ballLive=true;
-    var types=["Grounder","Pop Fly","Line Drive","Slow Roller","Backhand","Hot Shot"];
-    currentType=types[Math.floor(Math.random()*types.length)];
-    var bases=["first","second","third","home"];
-    correctBase=bases[Math.floor(Math.random()*bases.length)];
-    targetX=18+Math.random()*64;
-    targetY=17+Math.random()*45;
-    if(currentType==="Slow Roller"){ targetY=18+Math.random()*16; }
-    if(currentType==="Pop Fly"){ targetY=38+Math.random()*23; }
-    var target=byId("target");
-    target.style.left="calc("+targetX+"% - 37px)";
-    target.style.bottom="calc("+targetY+"% - 37px)";
-    target.style.display="block";
-    byId("playPrompt").textContent = currentType + ": field it, then throw to " + baseName(correctBase) + ".";
-    animateHit();
-    flash(currentType.toUpperCase());
+    outs=0; safes=0; plays=0; streak=0; phase="idle";
+    show("game-screen");
     update();
-    setTimeout(function(){ if(ballLive && !fielded){ missPlay("MISSED IT"); } }, settings[mode].speed + 1750);
+    setFielder(36,36);
+    setRunner(50,10,0);
+    byId("actionButton").textContent = "Start Play";
+    byId("prompt").textContent = "Tap Start Play. Then time the two clicks.";
+    setupMeter(50, settings[mode].good, settings[mode].perfect);
   }
-  function animateHit(){
+
+  function setFielder(x,y){
+    fielderX=x; fielderY=y;
+    var f=byId("fielder");
+    f.style.left=x+"%";
+    f.style.bottom=y+"%";
+    f.style.transform="translate(-50%,0)";
+  }
+  function setRunner(x,y,dur){
+    var r=byId("runner");
+    r.style.transitionDuration = (dur || 0) + "ms";
+    r.style.left=x+"%";
+    r.style.bottom=y+"%";
+  }
+
+  function setupMeter(center, good, perfect){
+    byId("goodZone").style.left = (center-good/2)+"%";
+    byId("goodZone").style.width = good+"%";
+    byId("perfectZone").style.left = (center-perfect/2)+"%";
+    byId("perfectZone").style.width = perfect+"%";
+    byId("needle").style.left = "calc("+needle+"% - 3px)";
+  }
+
+  function startMeter(){
+    if(meterTimer) clearInterval(meterTimer);
+    meterTimer = setInterval(function(){
+      needle += dir * settings[mode].needle;
+      if(needle >= 100){ needle=100; dir=-1; }
+      if(needle <= 0){ needle=0; dir=1; }
+      byId("needle").style.left = "calc("+needle+"% - 3px)";
+    },16);
+  }
+  function stopMeter(){ if(meterTimer) clearInterval(meterTimer); }
+
+  function newPlay(){
+    if(outs>=10 || safes>=3){ endGame(); return; }
+    plays++;
+    phase="fielding";
+    fieldScore=0; throwScore=0;
+    needle = Math.floor(Math.random()*70)+15; dir = Math.random()>.5 ? 1 : -1;
+    var bases=["first","second","third","home"];
+    targetBase=bases[Math.floor(Math.random()*bases.length)];
+    highlightBase();
+
+    ballX = 20 + Math.random()*60;
+    ballY = 24 + Math.random()*38;
+    setFielder(50, 12);
+    setRunner(50, 10, 0);
+
+    var spot=byId("ballSpot");
+    spot.style.left="calc("+ballX+"% - 35px)";
+    spot.style.bottom="calc("+ballY+"% - 35px)";
+    spot.style.display="block";
+
+    byId("ball").style.display="block";
+    byId("throwBall").style.display="none";
+    animateHit();
     crack();
+
+    byId("meterLabel").textContent = "1. Field / Crow Hop";
+    byId("actionButton").textContent = "Field It";
+    byId("prompt").textContent = "Tap when the marker is in the yellow/gold center.";
+    setupMeter(50, settings[mode].good, settings[mode].perfect);
+    update();
+    startMeter();
+    flash("FIELD IT");
+
+    var bc=baseCoords[targetBase];
+    setRunner(bc.x, bc.y, settings[mode].runner);
+
+    if(runnerTimer) clearTimeout(runnerTimer);
+    runnerTimer=setTimeout(function(){
+      if(phase!=="done"){ callSafe("RUNNER BEAT IT"); }
+    }, settings[mode].runner);
+  }
+
+  function animateHit(){
     var ball=byId("ball"), field=byId("field");
-    var startX=field.clientWidth*.50, startY=field.clientHeight*.18;
-    var endX=field.clientWidth*(targetX/100), endY=field.clientHeight*(1-targetY/100);
-    var step=0, total=Math.max(22, Math.floor(settings[mode].speed/28));
-    ball.style.display="block";
+    var sx=field.clientWidth*.50, sy=field.clientHeight*.18;
+    var ex=field.clientWidth*(ballX/100), ey=field.clientHeight*(1-ballY/100);
+    var step=0,total=34;
     var flight=setInterval(function(){
       step++;
       var t=step/total; if(t>1)t=1;
-      var arc = currentType==="Pop Fly" ? 145 : currentType==="Line Drive" || currentType==="Hot Shot" ? 45 : 22;
-      var x=startX+(endX-startX)*t;
-      var y=startY+(endY-startY)*t - Math.sin(t*Math.PI)*arc;
+      var x=sx+(ex-sx)*t;
+      var y=sy+(ey-sy)*t - Math.sin(t*Math.PI)*65;
       ball.style.left=x+"px"; ball.style.top=y+"px";
-      if(t>=1){ clearInterval(flight); }
-    },28);
+      if(t>=1) clearInterval(flight);
+    },18);
   }
-  function distance(){
-    var dx=playerX-targetX, dy=playerY-targetY;
-    return Math.sqrt(dx*dx+dy*dy);
+
+  function scoreTiming(){
+    var diff=Math.abs(needle-50);
+    var perfect=settings[mode].perfect/2;
+    var good=settings[mode].good/2;
+    if(diff<=perfect) return 100;
+    if(diff<=good) return Math.max(70, Math.round(100 - diff*3));
+    return Math.max(20, Math.round(65 - diff*1.2));
   }
-  function checkField(){
-    if(!ballLive || fielded) return;
-    if(distance() <= settings[mode].tolerance){
-      fielded=true; ballLive=false; catchSound();
-      byId("target").style.display="none";
-      byId("ball").style.display="none";
-      flash("FIELD IT");
-      byId("playPrompt").textContent = "Nice. Now make an accurate throw to " + baseName(correctBase) + ".";
-    }
+
+  function action(){
+    if(phase==="idle"){ newPlay(); return; }
+    if(phase==="fielding"){ fieldClick(); return; }
+    if(phase==="throwing"){ throwClick(); return; }
   }
-  function dive(){
-    if(!ballLive) return;
-    byId("playerSprite").classList.add("dive");
-    setTimeout(function(){ byId("playerSprite").classList.remove("dive"); },250);
-    if(distance() <= settings[mode].tolerance * 1.45){
-      fielded=true; ballLive=false; catchSound();
-      byId("target").style.display="none"; byId("ball").style.display="none";
-      flash("DIVING STOP");
-      byId("playPrompt").textContent = "Great stop. Throw to " + baseName(correctBase) + ".";
-    }
+
+  function fieldClick(){
+    fieldScore=scoreTiming();
+    glove();
+    stopMeter();
+    phase="throwing";
+    byId("fielder").classList.add("crowhop");
+    setFielder(ballX, ballY);
+    setTimeout(function(){ byId("fielder").classList.remove("crowhop"); },320);
+    byId("ballSpot").style.display="none";
+    byId("ball").style.display="none";
+
+    var good = settings[mode].good * (fieldScore>=90 ? .85 : fieldScore>=70 ? 1 : 1.2);
+    var perfect = settings[mode].perfect * (fieldScore>=90 ? .9 : 1);
+    setupMeter(50, good, perfect);
+    needle = Math.floor(Math.random()*70)+15;
+    byId("meterLabel").textContent = "2. Release Accuracy";
+    byId("actionButton").textContent = "Release Throw";
+    byId("prompt").textContent = fieldScore>=90 ? "Perfect fielding. Finish the throw." : "Now time the release before the runner gets there.";
+    flash(fieldScore>=90 ? "PERFECT CROW HOP" : fieldScore>=70 ? "GOOD FIELD" : "BOBBLE");
+    startMeter();
   }
-  function jump(){
-    if(!ballLive) return;
-    byId("playerSprite").classList.add("jump");
-    setTimeout(function(){ byId("playerSprite").classList.remove("jump"); },250);
-    if((currentType==="Pop Fly" || currentType==="Line Drive") && distance() <= settings[mode].tolerance * 1.3){
-      fielded=true; ballLive=false; catchSound();
-      byId("target").style.display="none"; byId("ball").style.display="none";
-      flash("CAUGHT IT");
-      byId("playPrompt").textContent = "Caught. Throw to " + baseName(correctBase) + ".";
-    }
-  }
-  function throwTo(base){
-    if(!fielded){ missPlay("NO BALL"); return; }
+
+  function throwClick(){
+    throwScore=scoreTiming();
+    stopMeter();
+    phase="done";
     throwSound();
-    animateThrow(base, function(){
-      if(base !== correctBase){
-        missPlay("WRONG BASE");
-        return;
-      }
-      var accuracy = Math.random()*100;
-      var need = settings[mode].throwWindow;
-      if(accuracy <= need){
-        made++; streak++;
+    animateThrow(function(){
+      var total = Math.round(fieldScore*.45 + throwScore*.55);
+      if(total>=72){
+        outs++; streak++;
         if(streak>=3){ applause(); confetti(22); }
-        flash("OUT AT " + baseName(base).toUpperCase());
+        flash(total>=92 ? "LASER THROW<br>OUT" : "OUT");
         update();
-        setTimeout(newPlay,850);
+        setTimeout(newPlay,900);
       } else {
-        missPlay("BAD THROW");
+        callSafe(total<45 ? "THROW AWAY" : "SAFE");
       }
     });
   }
-  function animateThrow(base, done){
+
+  function animateThrow(done){
     var tb=byId("throwBall"), field=byId("field");
-    var startX=field.clientWidth*(playerX/100), startY=field.clientHeight*(1-playerY/100);
-    var bc=baseCoords[base];
-    var endX=field.clientWidth*(bc.x/100), endY=field.clientHeight*(1-bc.y/100);
-    var step=0,total=18;
+    var sx=field.clientWidth*(ballX/100), sy=field.clientHeight*(1-ballY/100);
+    var bc=baseCoords[targetBase];
+    var ex=field.clientWidth*(bc.x/100), ey=field.clientHeight*(1-bc.y/100);
+    var miss = throwScore < 72 ? (72-throwScore)*1.4 : 0;
+    ex += (Math.random()-.5)*miss;
+    ey += (Math.random()-.5)*miss;
+    var step=0,total=20;
     tb.style.display="block";
     var flight=setInterval(function(){
       step++;
       var t=step/total; if(t>1)t=1;
-      var x=startX+(endX-startX)*t;
-      var y=startY+(endY-startY)*t - Math.sin(t*Math.PI)*45;
+      var x=sx+(ex-sx)*t;
+      var y=sy+(ey-sy)*t - Math.sin(t*Math.PI)*48;
       tb.style.left=x+"px"; tb.style.top=y+"px";
       if(t>=1){ clearInterval(flight); setTimeout(function(){ tb.style.display="none"; done(); },90); }
     },18);
   }
-  function missPlay(text){
-    if(errors>=3 || made>=10) return;
-    ballLive=false; fielded=false; errors++; streak=0;
-    byId("target").style.display="none"; byId("ball").style.display="none"; byId("throwBall").style.display="none";
-    errorSound(); flash(text || "ERROR");
+
+  function callSafe(text){
+    stopMeter();
+    if(runnerTimer) clearTimeout(runnerTimer);
+    phase="done";
+    safes++;
+    streak=0;
+    safeSound();
+    flash(text || "SAFE");
     update();
-    setTimeout(function(){ if(errors>=3){ endGame(); } else { newPlay(); } },900);
+    if(safes>=3){ setTimeout(endGame,900); }
+    else { setTimeout(newPlay,950); }
   }
+
+  function highlightBase(){
+    ["home","first","second","third"].forEach(function(b){ byId("base-"+b).classList.remove("targetBase"); });
+    byId("base-"+targetBase).classList.add("targetBase");
+  }
+
   function flash(html){ var m=byId("message"); m.innerHTML=html; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); }
+
   function endGame(){
-    ballLive=false; fielded=false; byId("target").style.display="none"; byId("ball").style.display="none"; byId("throwBall").style.display="none";
+    stopMeter();
+    if(runnerTimer) clearTimeout(runnerTimer);
+    phase="idle";
     applause();
-    byId("end-title").textContent=selected.name+"'s Defense Challenge";
-    byId("end-stats").textContent=made+" outs made • "+errors+" errors • "+settings[mode].name;
-    var note="Run it back and clean it up.";
-    if(made>=10 && errors===0) note="Gold glove round. No errors.";
-    else if(made>=10) note="Challenge complete. Big-time defense.";
-    else if(made>=7) note="Solid glove work.";
+    byId("end-title").textContent = selected.name + "'s Throwing Challenge";
+    byId("end-stats").textContent = outs + " outs • " + safes + " safe calls • " + settings[mode].name;
+    var note="Run it back and beat the runner.";
+    if(outs>=10 && safes===0) note="Gold glove arm. Nobody was safe.";
+    else if(outs>=10) note="Challenge complete. Big-time throws.";
+    else if(outs>=7) note="Solid arm. A few cleaner releases and it is on.";
     byId("end-note").textContent=note;
     saveScore(); drawLeaderboard(); show("end-screen");
   }
+
   function saveScore(){
-    var scores=[]; try{scores=JSON.parse(localStorage.getItem("defenseBaseChoiceScoresV1")||"[]");}catch(e){}
-    scores.push({name:selected.name,num:selected.number,made:made,errors:errors,mode:settings[mode].name});
-    scores.sort(function(a,b){return b.made-a.made || a.errors-b.errors;});
-    try{localStorage.setItem("defenseBaseChoiceScoresV1",JSON.stringify(scores.slice(0,8)));}catch(e){}
+    var scores=[]; try{scores=JSON.parse(localStorage.getItem("throwingChallengeScoresV1")||"[]");}catch(e){}
+    scores.push({name:selected.name,num:selected.number,outs:outs,safes:safes,mode:settings[mode].name});
+    scores.sort(function(a,b){return b.outs-a.outs || a.safes-b.safes;});
+    try{localStorage.setItem("throwingChallengeScoresV1",JSON.stringify(scores.slice(0,8)));}catch(e){}
   }
   function drawLeaderboard(){
-    var scores=[]; try{scores=JSON.parse(localStorage.getItem("defenseBaseChoiceScoresV1")||"[]");}catch(e){}
+    var scores=[]; try{scores=JSON.parse(localStorage.getItem("throwingChallengeScoresV1")||"[]");}catch(e){}
     var list=byId("leaderboard"); list.innerHTML="";
-    scores.forEach(function(s){var li=document.createElement("li"); li.textContent=s.name+" #"+s.num+": "+s.made+" outs, "+s.errors+" errors ("+s.mode+")"; list.appendChild(li);});
+    scores.forEach(function(s){var li=document.createElement("li"); li.textContent=s.name+" #"+s.num+": "+s.outs+" outs, "+s.safes+" safe ("+s.mode+")"; list.appendChild(li);});
   }
   function confetti(count){
     var field=byId("field"), colors=["#ffd166","#06d6a0","#118ab2","#ef476f","#ffffff"];
@@ -700,31 +714,17 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
       setTimeout(function(el){return function(){el.remove();};}(c),2600);
     }
   }
+
   function attach(){
     document.querySelectorAll(".player").forEach(function(b){b.addEventListener("click",function(){choosePlayer(b);});});
     document.querySelectorAll(".mode").forEach(function(b){b.addEventListener("click",function(){chooseMode(b);});});
-    document.querySelectorAll(".base-row button").forEach(function(b){b.addEventListener("click",function(){throwTo(b.getAttribute("data-base"));});});
     byId("start-button").addEventListener("click",startGame);
-    byId("left").addEventListener("click",function(){move(-6,0);});
-    byId("right").addEventListener("click",function(){move(6,0);});
-    byId("up").addEventListener("click",function(){move(0,6);});
-    byId("down").addEventListener("click",function(){move(0,-6);});
-    byId("dive-button").addEventListener("click",dive);
-    byId("jump-button").addEventListener("click",jump);
+    byId("actionButton").addEventListener("click",action);
     byId("restart-button").addEventListener("click",startGame);
     byId("again-button").addEventListener("click",startGame);
     byId("new-player-button").addEventListener("click",function(){show("select-screen");});
     document.addEventListener("keydown",function(e){
-      if(e.key==="ArrowLeft" || e.key==="a") move(-6,0);
-      if(e.key==="ArrowRight" || e.key==="d") move(6,0);
-      if(e.key==="ArrowUp" || e.key==="w") move(0,6);
-      if(e.key==="ArrowDown" || e.key==="s") move(0,-6);
-      if(e.key==="1") throwTo("first");
-      if(e.key==="2") throwTo("second");
-      if(e.key==="3") throwTo("third");
-      if(e.key==="4") throwTo("home");
-      if(e.key==="j") jump();
-      if(e.key==="k") dive();
+      if(e.code==="Space" || e.key==="Enter"){ e.preventDefault(); action(); }
     });
   }
   if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",attach);}else{attach();}
