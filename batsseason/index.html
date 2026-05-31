@@ -1,195 +1,734 @@
-
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BATS Baseball Season 2.0</title>
+<meta charset="utf-8">
+<title>Backyard Bombers Defense Challenge</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body{margin:0;font-family:Arial;background:#0f2747;color:white;text-align:center}
-#game{background:#8ecdf5;border:4px solid white;border-radius:12px;display:block;margin:10px auto}
-button,select{padding:8px;border-radius:8px}
-.card{display:inline-block;background:white;color:#0f2747;padding:8px;border-radius:10px;margin:4px}
-.controls button{width:60px;height:60px;font-size:24px}
+*{box-sizing:border-box}
+:root{
+  --navy:#10223b;
+  --gold:#ffd166;
+  --grass:#208a4d;
+  --grass-dark:#176d3c;
+  --dirt:#b8753b;
+  --chalk:#fff7df;
+  --red:#ef4444;
+}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(#70d4ff 0 34%,#1d7d46 34% 100%);
+  color:white;
+  text-align:center;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.screen{display:none;min-height:100vh;padding:18px;align-items:center;justify-content:center}
+.screen.active{display:flex}
+.panel{
+  width:min(1120px,100%);
+  background:rgba(12,30,54,.94);
+  border:4px solid rgba(255,255,255,.95);
+  border-radius:26px;
+  padding:22px;
+  box-shadow:0 18px 60px rgba(0,0,0,.38);
+}
+h1{font-size:clamp(2rem,6vw,4.2rem);margin:8px 0;color:var(--gold);text-shadow:4px 4px #071527}
+h2{margin:8px 0 16px}
+p{line-height:1.4}
+button{
+  cursor:pointer;
+  border:0;
+  border-radius:15px;
+  padding:13px 17px;
+  margin:6px;
+  font-weight:900;
+  font-size:1rem;
+  background:var(--gold);
+  color:var(--navy);
+  box-shadow:0 5px 0 #a97910;
+  touch-action:manipulation;
+}
+button:active{transform:translateY(4px);box-shadow:0 1px 0 #a97910}
+.big{font-size:1.25rem;padding:16px 28px}
+.secondary{background:#eef6ff;box-shadow:0 5px 0 #9eb3c9}
+.player-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(136px,1fr));
+  gap:12px;
+  margin:18px 0;
+}
+.player{
+  background:linear-gradient(#fff,#eaf3ff);
+  color:var(--navy);
+  border:4px solid #dbeafe;
+  min-height:136px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.player.selected{background:#fff7d1;border-color:var(--gold);transform:translateY(-3px)}
+.jersey{
+  width:74px;
+  height:80px;
+  background:#f8fbff;
+  border:4px solid #14365d;
+  border-radius:18px 18px 10px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#14365d;
+  font-size:2rem;
+  font-weight:1000;
+  margin-bottom:7px;
+}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 12px;margin:4px;font-weight:bold}
+.mode-row{margin:14px 0}
+.mode{background:#eef6ff;box-shadow:0 5px 0 #9eb3c9}
+.mode.selected{background:#ffd166;box-shadow:0 5px 0 #a97910;transform:translateY(-2px)}
+.game-shell{width:min(1200px,100%)}
+.scorebar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.scorebar div{background:rgba(12,30,54,.94);border:2px solid white;border-radius:14px;padding:8px}
+.scorebar strong{display:block;font-size:1.18rem}
+#field{
+  height:min(70vh,700px);
+  min-height:470px;
+  width:100%;
+  border:5px solid white;
+  border-radius:26px;
+  position:relative;
+  overflow:hidden;
+  background:
+    repeating-linear-gradient(112deg, rgba(255,255,255,.08) 0 24px, rgba(255,255,255,0) 24px 48px),
+    radial-gradient(ellipse at 50% 73%, #b8753b 0 12.8%, transparent 13.2%),
+    radial-gradient(ellipse at 50% 68%, #258a4f 0 56%, transparent 56.4%),
+    linear-gradient(#70d7ff 0 20%, #278c4d 20% 100%);
+  box-shadow:inset 0 0 90px rgba(0,0,0,.32),0 12px 28px rgba(0,0,0,.25);
+}
+.stands{
+  position:absolute;
+  left:0;right:0;top:12%;
+  height:58px;
+  background:repeating-linear-gradient(90deg,#253e5a 0 28px,#365c86 28px 56px,#4d6f9d 56px 84px);
+  border-top:5px solid white;
+  border-bottom:5px solid white;
+  opacity:.96;
+  z-index:1;
+}
+.scoreboard{
+  position:absolute;
+  top:3.8%;
+  left:50%;
+  transform:translateX(-50%);
+  background:#071527;
+  border:4px solid white;
+  border-radius:16px;
+  padding:8px 18px;
+  color:var(--gold);
+  font-weight:1000;
+  z-index:8;
+  box-shadow:0 8px 18px rgba(0,0,0,.35);
+}
+.wall-svg{
+  position:absolute;
+  left:4%;
+  right:4%;
+  top:16%;
+  width:92%;
+  height:28%;
+  z-index:5;
+  overflow:visible;
+  pointer-events:none;
+}
+.distance-mark{
+  position:absolute;
+  font-weight:1000;
+  color:white;
+  text-shadow:2px 2px #111;
+  z-index:7;
+  font-size:.88rem;
+  background:rgba(0,0,0,.22);
+  border-radius:999px;
+  padding:3px 8px;
+}
+.d330l{left:8%;top:27.5%}
+.d400{left:50%;top:20.8%;transform:translateX(-50%)}
+.d330r{right:8%;top:27.5%}
+.diamond{
+  position:absolute;
+  left:50%;
+  bottom:8.5%;
+  width:258px;
+  height:258px;
+  transform:translateX(-50%) rotate(45deg);
+  background:var(--dirt);
+  border:5px solid #f7ddb0;
+  border-radius:20px;
+  z-index:2;
+}
+.path{
+  position:absolute;
+  left:50%;
+  bottom:12.8%;
+  width:217px;
+  height:217px;
+  border:9px solid rgba(255,248,232,.82);
+  transform:translateX(-50%) rotate(45deg);
+  z-index:1;
+  border-radius:15px;
+}
+.base{
+  position:absolute;
+  width:24px;
+  height:24px;
+  background:#fff;
+  border:2px solid #ddd;
+  transform:rotate(45deg);
+  z-index:9;
+  box-shadow:0 0 8px rgba(0,0,0,.25);
+}
+.base.active{outline:5px solid var(--gold);box-shadow:0 0 20px var(--gold)}
+.home{left:50%;bottom:9.2%;transform:translateX(-50%) rotate(45deg)}
+.first{left:calc(50% + 126px);bottom:calc(8.5% + 126px)}
+.second{left:50%;bottom:calc(8.5% + 252px);transform:translateX(-50%) rotate(45deg)}
+.third{left:calc(50% - 146px);bottom:calc(8.5% + 126px)}
+.base-label{
+  position:absolute;
+  z-index:10;
+  font-weight:1000;
+  font-size:.72rem;
+  color:#10223b;
+  pointer-events:none;
+}
+.lhome{left:50%;bottom:6.5%;transform:translateX(-50%)}
+.lfirst{left:calc(50% + 138px);bottom:calc(8.5% + 151px)}
+.lsecond{left:50%;bottom:calc(8.5% + 279px);transform:translateX(-50%)}
+.lthird{left:calc(50% - 163px);bottom:calc(8.5% + 151px)}
+#playerSprite{
+  position:absolute;
+  left:50%;
+  bottom:35%;
+  transform:translate(-50%,0);
+  width:70px;
+  height:92px;
+  z-index:24;
+  transition:left .16s linear,bottom .16s linear,transform .16s linear;
+  filter:drop-shadow(0 6px 4px rgba(0,0,0,.35));
+}
+.head{width:30px;height:30px;background:#ffd0a6;border:3px solid #5b321f;border-radius:50%;margin:0 auto -2px;position:relative}
+.cap{position:absolute;left:1px;top:-8px;width:28px;height:14px;background:#14365d;border-radius:16px 16px 4px 4px}
+.body{width:48px;height:54px;background:white;border:4px solid #14365d;border-radius:12px;margin:0 auto;color:#14365d;font-size:1.35rem;font-weight:1000;display:flex;align-items:center;justify-content:center}
+.glove{position:absolute;right:4px;top:42px;width:24px;height:24px;background:#7c3f16;border:3px solid #4a240c;border-radius:50%;transform:rotate(-20deg)}
+#playerSprite.dive{transform:translate(-50%,0) rotate(-18deg) scale(1.08)}
+#playerSprite.jump{transform:translate(-50%,-16px) scale(1.05)}
+#ball{
+  position:absolute;
+  width:24px;
+  height:24px;
+  background:white;
+  border:2px solid #e63946;
+  border-radius:50%;
+  z-index:40;
+  display:none;
+  box-shadow:0 0 12px rgba(255,255,255,.9);
+}
+#throwBall{
+  position:absolute;
+  width:20px;
+  height:20px;
+  background:white;
+  border:2px solid #e63946;
+  border-radius:50%;
+  z-index:41;
+  display:none;
+  box-shadow:0 0 12px rgba(255,255,255,.9);
+}
+.target{
+  position:absolute;
+  width:74px;
+  height:74px;
+  border:5px solid rgba(255,255,255,.94);
+  border-radius:50%;
+  z-index:18;
+  display:none;
+  box-shadow:0 0 20px rgba(255,209,102,.9);
+  background:rgba(255,209,102,.25);
+  animation:pulse 1s infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+#message{
+  position:absolute;
+  left:50%;
+  top:42%;
+  transform:translate(-50%,-50%);
+  font-size:clamp(2rem,7vw,5rem);
+  font-weight:1000;
+  color:white;
+  text-shadow:4px 4px #10223b;
+  opacity:0;
+  z-index:60;
+  line-height:1;
+  pointer-events:none;
+}
+#message.show{animation:pop 1.05s ease}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.95)}}
+.fielder{
+  position:absolute;
+  width:42px;
+  height:58px;
+  z-index:6;
+  text-align:center;
+  filter:drop-shadow(0 4px 3px rgba(0,0,0,.3));
+}
+.fielder .fhead{width:19px;height:19px;border-radius:50%;background:#ffd0a6;border:2px solid #5b321f;margin:0 auto -1px}
+.fielder .fbody{width:30px;height:34px;background:#f8fbff;border:3px solid #14365d;border-radius:9px;margin:0 auto;color:#14365d;font-weight:1000;font-size:.72rem;display:flex;align-items:center;justify-content:center}
+.fielder label{display:block;margin-top:2px;font-size:.62rem;font-weight:1000;color:white;text-shadow:1px 1px #111}
+.p{left:50%;bottom:35%;transform:translateX(-50%)}
+.c{left:50%;bottom:3%;transform:translateX(-50%)}
+.oneb{left:62%;bottom:30%}
+.twob{left:54%;bottom:43%}
+.ss{left:41%;bottom:43%}
+.threeb{left:34%;bottom:30%}
+.lf{left:23%;bottom:52%}
+.cf{left:50%;bottom:58%;transform:translateX(-50%)}
+.rf{right:23%;bottom:52%}
+.controls{
+  margin-top:10px;
+  background:rgba(12,30,54,.94);
+  border:2px solid white;
+  border-radius:18px;
+  padding:10px;
+}
+#moveZone{
+  display:grid;
+  grid-template-columns:repeat(3,74px);
+  gap:7px;
+  justify-content:center;
+  align-items:center;
+  margin:8px auto;
+}
+.move{width:74px;height:52px;padding:0;margin:0;font-size:1.35rem;background:#eef6ff;box-shadow:0 4px 0 #9eb3c9}
+.action-row button{min-width:126px}
+.base-row button{min-width:88px;background:#fff7d1}
+#leaderboard{text-align:left;display:inline-block}
+.confetti{position:absolute;width:9px;height:16px;top:-20px;z-index:70;animation:fall 2.4s linear forwards}
+@keyframes fall{to{transform:translateY(720px) rotate(720deg);opacity:0}}
+@media(max-width:760px){
+ .scorebar{grid-template-columns:repeat(2,1fr)}.scorebar div:first-child{grid-column:1/-1}
+ #field{min-height:430px}.diamond{width:190px;height:190px}.path{width:160px;height:160px}
+ .first{left:calc(50% + 93px);bottom:calc(8.5% + 93px)}.second{bottom:calc(8.5% + 186px)}.third{left:calc(50% - 113px);bottom:calc(8.5% + 93px)}
+ .lfirst{left:calc(50% + 105px);bottom:calc(8.5% + 116px)}.lsecond{bottom:calc(8.5% + 212px)}.lthird{left:calc(50% - 132px);bottom:calc(8.5% + 116px)}
+ .wall-svg{top:19%;height:22%}.stands{height:48px}.scoreboard{font-size:.8rem}.distance-mark{font-size:.74rem}
+ .fielder{width:34px;height:48px}.fielder .fhead{width:16px;height:16px}.fielder .fbody{width:25px;height:28px;font-size:.6rem}.fielder label{font-size:.52rem}
+ #moveZone{grid-template-columns:repeat(3,64px)}.move{width:64px;height:48px}
+ .base-row button{min-width:70px;font-size:.82rem}
+}
 </style>
 </head>
 <body>
-<h1>BATS Baseball Season 2.0</h1>
-<select id="player"></select>
-<div id="status"></div>
-<div id="cards"></div>
-<canvas id="game" width="900" height="500"></canvas>
-<div class="controls">
-<button id="l">⬅️</button>
-<button id="u">⬆️</button>
-<button id="d">⬇️</button>
-<button id="r">➡️</button>
-</div>
+<main>
+<section id="select-screen" class="screen active">
+  <div class="panel">
+    <h1>Backyard Bombers</h1>
+    <h2>Defense Challenge</h2>
+    <p>Pick your player. Run to the ball, field it, then make an accurate throw to the correct base.</p>
+    <div class="player-grid">
+          <button class="player selected" type="button" data-name="Clayton" data-number="5">
+            <span class="jersey">5</span><strong>Clayton</strong>
+          </button>
+          <button class="player" type="button" data-name="Brock" data-number="29">
+            <span class="jersey">29</span><strong>Brock</strong>
+          </button>
+          <button class="player" type="button" data-name="Carter" data-number="28">
+            <span class="jersey">28</span><strong>Carter</strong>
+          </button>
+          <button class="player" type="button" data-name="Sidd" data-number="7">
+            <span class="jersey">7</span><strong>Sidd</strong>
+          </button>
+          <button class="player" type="button" data-name="Luke" data-number="23">
+            <span class="jersey">23</span><strong>Luke</strong>
+          </button>
+          <button class="player" type="button" data-name="Winston" data-number="20">
+            <span class="jersey">20</span><strong>Winston</strong>
+          </button>
+          <button class="player" type="button" data-name="Andrew" data-number="17">
+            <span class="jersey">17</span><strong>Andrew</strong>
+          </button>
+          <button class="player" type="button" data-name="Nash" data-number="99">
+            <span class="jersey">99</span><strong>Nash</strong>
+          </button>
+          <button class="player" type="button" data-name="Fisher" data-number="13">
+            <span class="jersey">13</span><strong>Fisher</strong>
+          </button>
+          <button class="player" type="button" data-name="Dom" data-number="34">
+            <span class="jersey">34</span><strong>Dom</strong>
+          </button>
+          <button class="player" type="button" data-name="Matthew Stancoven" data-number="27">
+            <span class="jersey">27</span><strong>Matthew Stancoven</strong>
+          </button>
+          <button class="player" type="button" data-name="Coach Larson" data-number="42">
+            <span class="jersey">42</span><strong>Coach Larson</strong>
+          </button>
+          <button class="player" type="button" data-name="Coach Thieme" data-number="0">
+            <span class="jersey">0</span><strong>Coach Thieme</strong>
+          </button>
+          <button class="player" type="button" data-name="Gus Armbruster" data-number="19">
+            <span class="jersey">19</span><strong>Gus Armbruster</strong>
+          </button>
+          <button class="player" type="button" data-name="Collin Norris" data-number="83">
+            <span class="jersey">83</span><strong>Collin Norris</strong>
+          </button>
+    </div>
+    <div class="mode-row">
+      <h2>Difficulty</h2>
+      <button class="mode selected" type="button" data-mode="rookie">Rookie</button>
+      <button class="mode" type="button" data-mode="mlb">MLB</button>
+      <button class="mode" type="button" data-mode="mvp">All Star/MVP</button>
+    </div>
+    <button id="start-button" class="big" type="button">Start Defense Challenge</button>
+    <p><span class="badge">10 plays</span><span class="badge">3 errors</span><span class="badge">choose the base</span><span class="badge">accurate throws</span></p>
+  </div>
+</section>
+
+<section id="game-screen" class="screen">
+  <div class="game-shell">
+    <div class="scorebar">
+      <div><small>Player</small><strong id="player-label">Clayton #5</strong></div>
+      <div><small>Outs Made</small><strong id="outs-label">0</strong></div>
+      <div><small>Errors</small><strong id="errors-label">0 / 3</strong></div>
+      <div><small>Play</small><strong id="play-label">0 / 10</strong></div>
+      <div><small>Throw To</small><strong id="throw-label">1st</strong></div>
+    </div>
+
+    <div id="field">
+      <div class="stands"></div>
+      <div class="scoreboard">BACKYARD BOMBERS DEFENSE</div>
+      <svg class="wall-svg" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M45,165 C210,30 790,30 955,165" fill="none" stroke="#0b3b24" stroke-width="34" stroke-linecap="round"/>
+        <path d="M45,165 C210,30 790,30 955,165" fill="none" stroke="white" stroke-width="7" stroke-linecap="round"/>
+        <path d="M45,165 C210,30 790,30 955,165" fill="none" stroke="#1b5e3a" stroke-width="18" stroke-dasharray="26 18" stroke-linecap="round"/>
+      </svg>
+      <div class="distance-mark d330l">330'</div><div class="distance-mark d400">400'</div><div class="distance-mark d330r">330'</div>
+
+      <div class="fielder lf"><div class="fhead"></div><div class="fbody">LF</div><label>LF</label></div>
+      <div class="fielder cf"><div class="fhead"></div><div class="fbody">CF</div><label>CF</label></div>
+      <div class="fielder rf"><div class="fhead"></div><div class="fbody">RF</div><label>RF</label></div>
+      <div class="fielder ss"><div class="fhead"></div><div class="fbody">SS</div><label>SS</label></div>
+      <div class="fielder twob"><div class="fhead"></div><div class="fbody">2B</div><label>2B</label></div>
+      <div class="fielder threeb"><div class="fhead"></div><div class="fbody">3B</div><label>3B</label></div>
+      <div class="fielder oneb"><div class="fhead"></div><div class="fbody">1B</div><label>1B</label></div>
+      <div class="fielder p"><div class="fhead"></div><div class="fbody">P</div><label>P</label></div>
+      <div class="fielder c"><div class="fhead"></div><div class="fbody">C</div><label>C</label></div>
+
+      <div class="path"></div><div class="diamond"></div>
+      <div id="base-home" class="base home"></div><div id="base-first" class="base first active"></div><div id="base-second" class="base second"></div><div id="base-third" class="base third"></div>
+      <div class="base-label lhome">HOME</div><div class="base-label lfirst">1ST</div><div class="base-label lsecond">2ND</div><div class="base-label lthird">3RD</div>
+
+      <div id="target" class="target"></div>
+      <div id="ball"></div>
+      <div id="throwBall"></div>
+      <div id="playerSprite">
+        <div class="head"><div class="cap"></div></div>
+        <div id="playerJersey" class="body">5</div>
+        <div class="glove"></div>
+      </div>
+      <div id="message"></div>
+    </div>
+
+    <div class="controls">
+      <div id="moveZone">
+        <span></span><button class="move" id="up" type="button">⬆️</button><span></span>
+        <button class="move" id="left" type="button">⬅️</button><button class="move" id="down" type="button">⬇️</button><button class="move" id="right" type="button">➡️</button>
+      </div>
+      <div class="base-row">
+        <button type="button" data-base="first">Throw 1st</button>
+        <button type="button" data-base="second">Throw 2nd</button>
+        <button type="button" data-base="third">Throw 3rd</button>
+        <button type="button" data-base="home">Throw Home</button>
+      </div>
+      <div class="action-row">
+        <button id="dive-button" class="secondary" type="button">Dive</button>
+        <button id="jump-button" class="secondary" type="button">Jump</button>
+        <button id="restart-button" class="secondary" type="button">Restart</button>
+      </div>
+      <p id="playPrompt">Get close to the glowing circle, field the ball, then throw to the correct base.</p>
+    </div>
+  </div>
+</section>
+
+<section id="end-screen" class="screen">
+  <div class="panel">
+    <h1 id="end-title">Game Complete</h1>
+    <h2 id="end-stats"></h2>
+    <p id="end-note"></p>
+    <h2>Defense Records</h2>
+    <ol id="leaderboard"></ol>
+    <button id="again-button" class="big" type="button">Play Again</button>
+    <button id="new-player-button" class="secondary" type="button">Choose New Player</button>
+  </div>
+</section>
+</main>
 
 <script>
-const roster=[
-{name:"Clayton Nelms #5",spd:85,pow:72,field:92},
-{name:"Brock Larson #29",spd:70,pow:95,field:80},
-{name:"Carter Ducote #28",spd:80,pow:82,field:84},
-{name:"Sidd Maniere #7",spd:95,pow:65,field:78},
-{name:"Luke Turner #23",spd:82,pow:75,field:80},
-{name:"Winston Morris #20",spd:78,pow:84,field:86},
-{name:"Andrew Chun #17",spd:93,pow:68,field:83},
-{name:"Nash Pinter #99",spd:60,pow:99,field:72},
-{name:"Fisher Underbrink #13",spd:84,pow:76,field:85},
-{name:"Dom Deno #34",spd:72,pow:88,field:79},
-{name:"Matthew Stancoven #27",spd:80,pow:81,field:84}
-];
+(function(){
+  var selected = {name:"Clayton", number:5};
+  var mode = "rookie";
+  var settings = {
+    rookie:{speed:1080, tolerance:11.5, throwWindow:130, name:"Rookie"},
+    mlb:{speed:820, tolerance:8.7, throwWindow:95, name:"MLB"},
+    mvp:{speed:620, tolerance:6.6, throwWindow:70, name:"All Star/MVP"}
+  };
+  var made = 0, errors = 0, plays = 0, streak = 0;
+  var playerX = 50, playerY = 35;
+  var targetX = 50, targetY = 35;
+  var ballLive = false, fielded = false, currentType = "Grounder";
+  var correctBase = "first";
+  var audioCtx = null;
+  var baseCoords = {
+    first: {x:63, y:36},
+    second: {x:50, y:63},
+    third: {x:37, y:36},
+    home: {x:50, y:10}
+  };
 
-const sel=document.getElementById("player");
-roster.forEach(p=>{let o=document.createElement("option");o.textContent=p.name;sel.appendChild(o)});
+  function byId(id){ return document.getElementById(id); }
+  function show(id){ ["select-screen","game-screen","end-screen"].forEach(function(s){ byId(s).classList.remove("active"); }); byId(id).classList.add("active"); }
+  function audio(){ if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } if(audioCtx.state === "suspended"){ audioCtx.resume(); } return audioCtx; }
+  function tone(freq,dur,type,vol,delay){
+    try{ var ctx=audio(),osc=ctx.createOscillator(),gain=ctx.createGain(); osc.type=type||"square"; osc.frequency.setValueAtTime(freq,ctx.currentTime+(delay||0)); gain.gain.setValueAtTime(0.0001,ctx.currentTime+(delay||0)); gain.gain.exponentialRampToValueAtTime(vol||.06,ctx.currentTime+(delay||0)+.02); gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+(delay||0)+dur); osc.connect(gain); gain.connect(ctx.destination); osc.start(ctx.currentTime+(delay||0)); osc.stop(ctx.currentTime+(delay||0)+dur+.04);}catch(e){}
+  }
+  function noise(dur,vol,delay){
+    try{ var ctx=audio(),size=ctx.sampleRate*dur,buf=ctx.createBuffer(1,size,ctx.sampleRate),data=buf.getChannelData(0); for(var i=0;i<size;i++){ data[i]=(Math.random()*2-1)*(1-i/size); } var source=ctx.createBufferSource(),gain=ctx.createGain(); source.buffer=buf; gain.gain.setValueAtTime(vol||.05,ctx.currentTime+(delay||0)); gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+(delay||0)+dur); source.connect(gain); gain.connect(ctx.destination); source.start(ctx.currentTime+(delay||0)); }catch(e){}
+  }
+  function applause(){ for(var i=0;i<18;i++){ noise(.055,.055,i*.05); } }
+  function crack(){ tone(115,.05,"sawtooth",.18,0); tone(380,.06,"square",.07,.02); }
+  function catchSound(){ tone(260,.09,"triangle",.07,0); tone(520,.08,"triangle",.05,.05); }
+  function throwSound(){ tone(450,.05,"sine",.06,0); tone(720,.06,"sine",.04,.06); }
+  function errorSound(){ tone(140,.16,"sawtooth",.06,0); tone(95,.20,"sawtooth",.06,.14); }
 
-const save=JSON.parse(localStorage.getItem("batsv2")||'{"wins":0,"cards":[]}');
-function saveGame(){localStorage.setItem("batsv2",JSON.stringify(save));}
-
-const cards=document.getElementById("cards");
-function drawCards(){
-cards.innerHTML="";
-save.cards.forEach(c=>{
-cards.innerHTML+=`<div class="card">${c}<br>⭐ Unlocked</div>`;
-});
-}
-drawCards();
-
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-let lives=3,inning=1,game=1,score=0,outs=0,laps=0;
-let p={x:100,y:100,s:32};
-let keys={},balls=[],trophies=[],runner=0;
-
-document.addEventListener("keydown",e=>keys[e.key]=true);
-document.addEventListener("keyup",e=>keys[e.key]=false);
-
-function bind(id,key){
-let b=document.getElementById(id);
-["mousedown","touchstart"].forEach(e=>b.addEventListener(e,x=>{x.preventDefault();keys[key]=true;}));
-["mouseup","mouseleave","touchend"].forEach(e=>b.addEventListener(e,x=>{x.preventDefault();keys[key]=false;}));
-}
-bind("l","ArrowLeft");bind("r","ArrowRight");bind("u","ArrowUp");bind("d","ArrowDown");
-
-function loseLife(){
-lives--;
-if(lives<=0){game=99;}
-}
-
-setInterval(()=>{
-if(game===1){
-balls.push({x:Math.random()*900,y:-10});
-if(Math.random()<0.8)trophies.push({x:Math.random()*860,y:Math.random()*460});
-}
-},1000);
-
-canvas.addEventListener("click",e=>{
-if(game!==2)return;
-const r=canvas.getBoundingClientRect();
-const x=e.clientX-r.left,y=e.clientY-r.top;
-if(x>runner&&x<runner+40&&y>220&&y<260){outs++;runner=0;}
-else loseLife();
-});
-
-function unlockCard(){
-const player=sel.value;
-if(!save.cards.includes(player)){
-save.cards.push(player);
-saveGame();
-drawCards();
-}
-}
-
-function update(){
-const stat=roster[sel.selectedIndex].spd/25;
-if(keys["ArrowLeft"])p.x-=stat;
-if(keys["ArrowRight"])p.x+=stat;
-if(keys["ArrowUp"])p.y-=stat;
-if(keys["ArrowDown"])p.y+=stat;
-
-if(game===1){
-balls.forEach(b=>{
-b.y+=5;
-let dx=p.x-b.x,dy=p.y-b.y;
-if(Math.sqrt(dx*dx+dy*dy)<25){b.y=999;loseLife();}
-});
-trophies=trophies.filter(t=>{
-if(Math.abs(t.x-p.x)<25&&Math.abs(t.y-p.y)<25){score++;return false;}
-return true;
-});
-if(score>=10){game=2;}
-}
-
-if(game===2){
-runner+=4;
-if(runner>900){runner=0;loseLife();}
-if(outs>=10){game=3;}
-}
-
-if(game===3){
-if(p.x>850){laps++;p.x=20;}
-if(laps>=5){
-unlockCard();
-save.wins++;
-saveGame();
-game=100;
-}
-}
-
-document.getElementById("status").innerHTML=
-`❤️ ${lives} | Inning ${inning} | Game ${game<99?game:"End"} |
-Wins Saved: ${save.wins}<br>
-${game===1?"Collect 10 trophies: "+score+"/10":""}
-${game===2?"Record 10 outs: "+outs+"/10":""}
-${game===3?"Run 5 laps: "+laps+"/5":""}`;
-}
-
-function drawSprite(x,y,color,name){
-ctx.fillStyle=color;
-ctx.fillRect(x,y,32,32);
-ctx.fillStyle="white";
-ctx.fillRect(x+10,y,12,32);
-}
-
-function draw(){
-ctx.clearRect(0,0,900,500);
-
-if(game===1){
-ctx.fillStyle="#c62828";
-trophies.forEach(t=>ctx.fillRect(t.x,t.y,18,18));
-ctx.fillStyle="white";
-balls.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,10,0,7);ctx.fill();});
-}
-
-if(game===2){
-ctx.fillStyle="green";
-ctx.fillRect(0,220,900,40);
-ctx.fillStyle="navy";
-ctx.fillRect(runner,220,40,40);
-ctx.fillStyle="white";
-ctx.fillText("Click/Tap Runner",380,120);
-}
-
-if(game===3){
-ctx.fillStyle="white";
-ctx.fillRect(870,0,10,500);
-ctx.fillText("Reach finish line 5 times",340,80);
-}
-
-drawSprite(p.x,p.y,"#0f2747");
-
-if(game===99||game===100){
-ctx.fillStyle="rgba(0,0,0,.7)";
-ctx.fillRect(0,0,900,500);
-ctx.fillStyle="white";
-ctx.font="40px Arial";
-ctx.fillText(game===100?"🏆 BATS CHAMPIONS":"Season Over",250,250);
-}
-}
-
-function loop(){update();draw();requestAnimationFrame(loop);}
-loop();
+  function choosePlayer(button){
+    selected = {name:button.getAttribute("data-name"), number:Number(button.getAttribute("data-number"))};
+    document.querySelectorAll(".player").forEach(function(b){ b.classList.remove("selected"); });
+    button.classList.add("selected");
+  }
+  function chooseMode(button){
+    mode = button.getAttribute("data-mode");
+    document.querySelectorAll(".mode").forEach(function(b){ b.classList.remove("selected"); });
+    button.classList.add("selected");
+  }
+  function update(){
+    byId("player-label").textContent = selected.name + " #" + selected.number + " • " + settings[mode].name;
+    byId("outs-label").textContent = made;
+    byId("errors-label").textContent = errors + " / 3";
+    byId("play-label").textContent = plays + " / 10";
+    byId("throw-label").textContent = baseName(correctBase);
+    byId("playerJersey").textContent = selected.number;
+    highlightBase();
+  }
+  function baseName(b){ return b==="first"?"1st":b==="second"?"2nd":b==="third"?"3rd":"Home"; }
+  function highlightBase(){
+    ["home","first","second","third"].forEach(function(b){ byId("base-"+b).classList.remove("active"); });
+    byId("base-"+correctBase).classList.add("active");
+  }
+  function startGame(){
+    made=0; errors=0; plays=0; streak=0; playerX=50; playerY=35; ballLive=false; fielded=false;
+    show("game-screen"); update(); movePlayer(); flash("GET READY"); setTimeout(newPlay,850);
+  }
+  function movePlayer(){
+    var p=byId("playerSprite");
+    p.style.left=playerX+"%";
+    p.style.bottom=playerY+"%";
+  }
+  function move(dx,dy){
+    if(!ballLive && !fielded) return;
+    playerX=Math.max(10,Math.min(90,playerX+dx));
+    playerY=Math.max(3,Math.min(64,playerY+dy));
+    movePlayer();
+    checkField();
+  }
+  function newPlay(){
+    if(errors>=3 || made>=10){ endGame(); return; }
+    plays++;
+    fielded=false; ballLive=true;
+    var types=["Grounder","Pop Fly","Line Drive","Slow Roller","Backhand","Hot Shot"];
+    currentType=types[Math.floor(Math.random()*types.length)];
+    var bases=["first","second","third","home"];
+    correctBase=bases[Math.floor(Math.random()*bases.length)];
+    targetX=18+Math.random()*64;
+    targetY=17+Math.random()*45;
+    if(currentType==="Slow Roller"){ targetY=18+Math.random()*16; }
+    if(currentType==="Pop Fly"){ targetY=38+Math.random()*23; }
+    var target=byId("target");
+    target.style.left="calc("+targetX+"% - 37px)";
+    target.style.bottom="calc("+targetY+"% - 37px)";
+    target.style.display="block";
+    byId("playPrompt").textContent = currentType + ": field it, then throw to " + baseName(correctBase) + ".";
+    animateHit();
+    flash(currentType.toUpperCase());
+    update();
+    setTimeout(function(){ if(ballLive && !fielded){ missPlay("MISSED IT"); } }, settings[mode].speed + 1750);
+  }
+  function animateHit(){
+    crack();
+    var ball=byId("ball"), field=byId("field");
+    var startX=field.clientWidth*.50, startY=field.clientHeight*.18;
+    var endX=field.clientWidth*(targetX/100), endY=field.clientHeight*(1-targetY/100);
+    var step=0, total=Math.max(22, Math.floor(settings[mode].speed/28));
+    ball.style.display="block";
+    var flight=setInterval(function(){
+      step++;
+      var t=step/total; if(t>1)t=1;
+      var arc = currentType==="Pop Fly" ? 145 : currentType==="Line Drive" || currentType==="Hot Shot" ? 45 : 22;
+      var x=startX+(endX-startX)*t;
+      var y=startY+(endY-startY)*t - Math.sin(t*Math.PI)*arc;
+      ball.style.left=x+"px"; ball.style.top=y+"px";
+      if(t>=1){ clearInterval(flight); }
+    },28);
+  }
+  function distance(){
+    var dx=playerX-targetX, dy=playerY-targetY;
+    return Math.sqrt(dx*dx+dy*dy);
+  }
+  function checkField(){
+    if(!ballLive || fielded) return;
+    if(distance() <= settings[mode].tolerance){
+      fielded=true; ballLive=false; catchSound();
+      byId("target").style.display="none";
+      byId("ball").style.display="none";
+      flash("FIELD IT");
+      byId("playPrompt").textContent = "Nice. Now make an accurate throw to " + baseName(correctBase) + ".";
+    }
+  }
+  function dive(){
+    if(!ballLive) return;
+    byId("playerSprite").classList.add("dive");
+    setTimeout(function(){ byId("playerSprite").classList.remove("dive"); },250);
+    if(distance() <= settings[mode].tolerance * 1.45){
+      fielded=true; ballLive=false; catchSound();
+      byId("target").style.display="none"; byId("ball").style.display="none";
+      flash("DIVING STOP");
+      byId("playPrompt").textContent = "Great stop. Throw to " + baseName(correctBase) + ".";
+    }
+  }
+  function jump(){
+    if(!ballLive) return;
+    byId("playerSprite").classList.add("jump");
+    setTimeout(function(){ byId("playerSprite").classList.remove("jump"); },250);
+    if((currentType==="Pop Fly" || currentType==="Line Drive") && distance() <= settings[mode].tolerance * 1.3){
+      fielded=true; ballLive=false; catchSound();
+      byId("target").style.display="none"; byId("ball").style.display="none";
+      flash("CAUGHT IT");
+      byId("playPrompt").textContent = "Caught. Throw to " + baseName(correctBase) + ".";
+    }
+  }
+  function throwTo(base){
+    if(!fielded){ missPlay("NO BALL"); return; }
+    throwSound();
+    animateThrow(base, function(){
+      if(base !== correctBase){
+        missPlay("WRONG BASE");
+        return;
+      }
+      var accuracy = Math.random()*100;
+      var need = settings[mode].throwWindow;
+      if(accuracy <= need){
+        made++; streak++;
+        if(streak>=3){ applause(); confetti(22); }
+        flash("OUT AT " + baseName(base).toUpperCase());
+        update();
+        setTimeout(newPlay,850);
+      } else {
+        missPlay("BAD THROW");
+      }
+    });
+  }
+  function animateThrow(base, done){
+    var tb=byId("throwBall"), field=byId("field");
+    var startX=field.clientWidth*(playerX/100), startY=field.clientHeight*(1-playerY/100);
+    var bc=baseCoords[base];
+    var endX=field.clientWidth*(bc.x/100), endY=field.clientHeight*(1-bc.y/100);
+    var step=0,total=18;
+    tb.style.display="block";
+    var flight=setInterval(function(){
+      step++;
+      var t=step/total; if(t>1)t=1;
+      var x=startX+(endX-startX)*t;
+      var y=startY+(endY-startY)*t - Math.sin(t*Math.PI)*45;
+      tb.style.left=x+"px"; tb.style.top=y+"px";
+      if(t>=1){ clearInterval(flight); setTimeout(function(){ tb.style.display="none"; done(); },90); }
+    },18);
+  }
+  function missPlay(text){
+    if(errors>=3 || made>=10) return;
+    ballLive=false; fielded=false; errors++; streak=0;
+    byId("target").style.display="none"; byId("ball").style.display="none"; byId("throwBall").style.display="none";
+    errorSound(); flash(text || "ERROR");
+    update();
+    setTimeout(function(){ if(errors>=3){ endGame(); } else { newPlay(); } },900);
+  }
+  function flash(html){ var m=byId("message"); m.innerHTML=html; m.classList.remove("show"); void m.offsetWidth; m.classList.add("show"); }
+  function endGame(){
+    ballLive=false; fielded=false; byId("target").style.display="none"; byId("ball").style.display="none"; byId("throwBall").style.display="none";
+    applause();
+    byId("end-title").textContent=selected.name+"'s Defense Challenge";
+    byId("end-stats").textContent=made+" outs made • "+errors+" errors • "+settings[mode].name;
+    var note="Run it back and clean it up.";
+    if(made>=10 && errors===0) note="Gold glove round. No errors.";
+    else if(made>=10) note="Challenge complete. Big-time defense.";
+    else if(made>=7) note="Solid glove work.";
+    byId("end-note").textContent=note;
+    saveScore(); drawLeaderboard(); show("end-screen");
+  }
+  function saveScore(){
+    var scores=[]; try{scores=JSON.parse(localStorage.getItem("defenseBaseChoiceScoresV1")||"[]");}catch(e){}
+    scores.push({name:selected.name,num:selected.number,made:made,errors:errors,mode:settings[mode].name});
+    scores.sort(function(a,b){return b.made-a.made || a.errors-b.errors;});
+    try{localStorage.setItem("defenseBaseChoiceScoresV1",JSON.stringify(scores.slice(0,8)));}catch(e){}
+  }
+  function drawLeaderboard(){
+    var scores=[]; try{scores=JSON.parse(localStorage.getItem("defenseBaseChoiceScoresV1")||"[]");}catch(e){}
+    var list=byId("leaderboard"); list.innerHTML="";
+    scores.forEach(function(s){var li=document.createElement("li"); li.textContent=s.name+" #"+s.num+": "+s.made+" outs, "+s.errors+" errors ("+s.mode+")"; list.appendChild(li);});
+  }
+  function confetti(count){
+    var field=byId("field"), colors=["#ffd166","#06d6a0","#118ab2","#ef476f","#ffffff"];
+    for(var i=0;i<count;i++){
+      var c=document.createElement("div"); c.className="confetti"; c.style.left=(Math.random()*100)+"%"; c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.animationDelay=(Math.random()*.25)+"s"; field.appendChild(c);
+      setTimeout(function(el){return function(){el.remove();};}(c),2600);
+    }
+  }
+  function attach(){
+    document.querySelectorAll(".player").forEach(function(b){b.addEventListener("click",function(){choosePlayer(b);});});
+    document.querySelectorAll(".mode").forEach(function(b){b.addEventListener("click",function(){chooseMode(b);});});
+    document.querySelectorAll(".base-row button").forEach(function(b){b.addEventListener("click",function(){throwTo(b.getAttribute("data-base"));});});
+    byId("start-button").addEventListener("click",startGame);
+    byId("left").addEventListener("click",function(){move(-6,0);});
+    byId("right").addEventListener("click",function(){move(6,0);});
+    byId("up").addEventListener("click",function(){move(0,6);});
+    byId("down").addEventListener("click",function(){move(0,-6);});
+    byId("dive-button").addEventListener("click",dive);
+    byId("jump-button").addEventListener("click",jump);
+    byId("restart-button").addEventListener("click",startGame);
+    byId("again-button").addEventListener("click",startGame);
+    byId("new-player-button").addEventListener("click",function(){show("select-screen");});
+    document.addEventListener("keydown",function(e){
+      if(e.key==="ArrowLeft" || e.key==="a") move(-6,0);
+      if(e.key==="ArrowRight" || e.key==="d") move(6,0);
+      if(e.key==="ArrowUp" || e.key==="w") move(0,6);
+      if(e.key==="ArrowDown" || e.key==="s") move(0,-6);
+      if(e.key==="1") throwTo("first");
+      if(e.key==="2") throwTo("second");
+      if(e.key==="3") throwTo("third");
+      if(e.key==="4") throwTo("home");
+      if(e.key==="j") jump();
+      if(e.key==="k") dive();
+    });
+  }
+  if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",attach);}else{attach();}
+})();
 </script>
 </body>
 </html>
