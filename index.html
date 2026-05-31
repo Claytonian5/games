@@ -1,62 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clayton's Games</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #0f0f0f;
-            color: #fff;
-            text-align: center;
-        }
-        h1 {
-            margin: 60px 0 20px;
-            font-size: 3rem;
-        }
-        .game-container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 50px;
-            flex-wrap: wrap;
-        }
-        .game-card {
-            background: #1f1f1f;
-            border-radius: 12px;
-            width: 280px;
-            padding: 20px;
-            transition: transform 0.3s;
-        }
-        .game-card:hover {
-            transform: scale(1.05);
-        }
-        .game-card img {
-            width: 100%;
-            border-radius: 8px;
-        }
-        .game-card h2 {
-            margin: 15px 0 10px;
-        }
-        a {
-            color: #00ffcc;
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
-    <h1>Clayton's Games</h1>
-    <p>Welcome to my game collection!</p>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backyard Bombers Arcade</title>
 
-    <div class="game-container">
-        <a href="backyardbombers/" class="game-card">
-            <h2>🏠 Backyard Bombers</h2>
-            <p>Home Run Derby Game</p>
-            <p><strong>Play Now →</strong></p>
-        </a>
-    </div>
+<style>
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:linear-gradient(#70d7ff,#1f8f4d);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+color:white;
+}
+
+.container{
+text-align:center;
+max-width:900px;
+padding:20px;
+}
+
+h1{
+font-size:60px;
+margin-bottom:10px;
+color:#FFD166;
+text-shadow:3px 3px #10223b;
+}
+
+h2{
+margin-top:0;
+}
+
+.games{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:25px;
+margin-top:40px;
+}
+
+.card{
+background:rgba(16,34,59,.9);
+border:3px solid white;
+border-radius:20px;
+padding:25px;
+}
+
+.card h3{
+color:#FFD166;
+}
+
+.playButton{
+display:inline-block;
+margin-top:15px;
+padding:15px 25px;
+background:#FFD166;
+color:#10223b;
+text-decoration:none;
+font-weight:bold;
+border-radius:12px;
+}
+
+.playButton:hover{
+transform:scale(1.05);
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>⚾ Backyard Bombers Arcade ⚾</h1>
+<h2>Choose Your Game</h2>
+
+<div class="games">
+
+<div class="card">
+<h3>🏆 Home Run Derby</h3>
+<p>
+Pick your player and see how many home runs
+you can hit before recording 3 outs.
+</p>
+
+<a class="playButton"
+href="https://YOUR-HRD-LINK-HERE"
+target="_blank">
+Play Home Run Derby
+</a>
+</div>
+
+<div class="card">
+<h3>💪 Throwing Challenge</h3>
+<p>
+Time your fielding and release perfectly
+to throw runners out.
+</p>
+
+<a class="playButton"
+href="https://YOUR-THROWING-GAME-LINK-HERE"
+target="_blank">
+Play Throwing Challenge
+</a>
+</div>
+
+</div>
+
+</div>
+
 </body>
 </html>
