@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Great Heist — An InSync Create Mystery</title>
+<meta name="description" content="A text-only detective mystery game. One missing trophy, four suspects, one detective.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0a17; --bg2:#151026; --panel:#1b1530; --panel2:#231b3d; --line:#3a2d63;
+    --purple:#8b5cf6; --purple-l:#c4b5fd; --gold:#f5c542; --gold-d:#c99a1e;
+    --text:#ece8f7; --muted:#a59cc4; --good:#4ade80; --bad:#f87171;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text)}
+  body{
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    line-height:1.6;min-height:100vh;
+    background:
+      radial-gradient(ellipse at top, rgba(139,92,246,.18), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(245,197,66,.07), transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:24px 16px 64px}
+  h1,h2,h3,.serif{font-family:'Playfair Display',Georgia,serif}
+  .eyebrow{letter-spacing:.32em;text-transform:uppercase;font-size:.75rem;color:var(--gold);font-weight:600}
+  .muted{color:var(--muted)}
+  .gold{color:var(--gold)}
+  .purple{color:var(--purple-l)}
+  button{font-family:inherit;cursor:pointer}
+
+  /* Buttons */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    border:none;border-radius:999px;padding:14px 28px;font-weight:600;font-size:1rem;
+    background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#1a1206;
+    box-shadow:0 6px 24px rgba(245,197,66,.25);transition:transform .15s, box-shadow .15s, opacity .15s;
+    text-decoration:none;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(245,197,66,.35)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+  .btn.secondary{background:transparent;color:var(--purple-l);border:1.5px solid var(--purple);box-shadow:none}
+  .btn.secondary:hover{background:rgba(139,92,246,.12)}
+  .btn.small{padding:9px 18px;font-size:.9rem}
+
+  /* Title screen */
+  .title-screen{min-height:calc(100vh - 88px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:22px}
+  .title-screen h1{font-size:clamp(2.8rem,10vw,5.6rem);line-height:1;font-weight:900;
+    background:linear-gradient(180deg,#fff3c4,var(--gold) 55%,var(--gold-d));-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 60px rgba(245,197,66,.15)}
+  .title-screen .tagline{font-size:1.2rem;max-width:560px}
+  .divider{width:80px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:4px auto}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .chip{border:1px solid var(--line);background:rgba(27,21,48,.7);border-radius:999px;padding:6px 14px;font-size:.85rem;color:var(--muted)}
+
+  /* Panels */
+  .panel{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+  .panel + .panel{margin-top:16px}
+  .story p{margin-bottom:14px;font-size:1.05rem}
+  .story p:last-child{margin-bottom:0}
+
+  /* Game header */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .brand{font-family:'Playfair Display',serif;font-weight:900;font-size:1.3rem;color:var(--gold);letter-spacing:.02em}
+  .progress{font-size:.85rem;color:var(--muted)}
+  .progress b{color:var(--gold)}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:18px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:10px;padding:10px 16px;font-weight:600;font-size:.92rem;transition:all .15s}
+  .tab:hover{color:var(--text);border-color:var(--purple)}
+  .tab.active{background:linear-gradient(135deg,rgba(139,92,246,.35),rgba(139,92,246,.12));border-color:var(--purple);color:#fff}
+  .tab .count{display:inline-block;margin-left:6px;background:var(--gold);color:#1a1206;border-radius:999px;padding:0 7px;font-size:.75rem}
+  .tab .lock{margin-left:6px;opacity:.7}
+
+  .section-title{font-size:1.6rem;margin-bottom:6px}
+  .section-sub{color:var(--muted);margin-bottom:18px}
+
+  /* Cards grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .card{
+    text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--text);
+    border-radius:var(--radius);padding:18px;transition:all .18s;position:relative;
+  }
+  .card:hover{border-color:var(--purple);transform:translateY(-2px);background:var(--panel2)}
+  .card h3{font-size:1.15rem;margin-bottom:4px}
+  .card .sym{font-size:1.4rem;color:var(--gold);margin-bottom:8px;display:block}
+  .card .status{font-size:.8rem;color:var(--muted)}
+  .card.done .status{color:var(--good)}
+  .card.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+
+  .monogram{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;font-weight:900;font-size:1.15rem;color:#1a1206;
+    background:linear-gradient(135deg,var(--gold),var(--gold-d));margin-bottom:12px}
+  .monogram.lg{width:64px;height:64px;font-size:1.4rem;margin:0}
+  .role{color:var(--purple-l);font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+
+  /* Location detail */
+  .detail-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .back{background:none;border:none;color:var(--purple-l);font-weight:600;font-size:.95rem;padding:0;margin-bottom:14px}
+  .back:hover{color:#fff}
+  .found{margin-top:18px;border-top:1px dashed var(--line);padding-top:16px}
+  .ev{border-left:3px solid var(--gold);background:rgba(245,197,66,.06);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}
+  .ev h4{font-size:1rem;color:var(--gold);margin-bottom:2px}
+  .ev p{font-size:.95rem}
+  .ev .src{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+
+  /* Interview */
+  .profile{display:flex;gap:16px;align-items:center;margin-bottom:16px}
+  .convo{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+  .bubble{max-width:88%;padding:12px 16px;border-radius:16px;font-size:.98rem}
+  .bubble.q{align-self:flex-end;background:rgba(139,92,246,.22);border:1px solid rgba(139,92,246,.4);border-bottom-right-radius:4px}
+  .bubble.a{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .bubble .who{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;font-weight:600}
+  .bubble.a .who{color:var(--gold)}
+  .bubble .newev{display:block;margin-top:8px;font-size:.82rem;color:var(--gold);font-weight:600}
+  .qlist{display:flex;flex-direction:column;gap:8px}
+  .qbtn{text-align:left;border:1px solid var(--line);background:var(--bg2);color:var(--text);border-radius:12px;padding:12px 16px;font-size:.97rem;transition:all .15s}
+  .qbtn:hover{border-color:var(--gold);background:var(--panel2)}
+  .qbtn .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1a1206;background:var(--purple-l);border-radius:999px;padding:1px 8px;margin-right:8px;vertical-align:1px}
+  .hintline{font-size:.88rem;color:var(--muted);margin-top:12px;font-style:italic}
+
+  /* Puzzle */
+  .clue-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+  .clue-list li{padding:10px 14px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px}
+  .clue-list li b{color:var(--purple-l)}
+  .log{display:flex;flex-direction:column;gap:8px}
+  .rec{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--bg2);color:var(--text);border-radius:12px;padding:12px 14px;font-size:.95rem;transition:all .15s}
+  .rec:hover{border-color:var(--purple)}
+  .rec .time{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--gold);font-weight:700}
+  .rec.selected{border-color:var(--gold);background:rgba(245,197,66,.08)}
+  .rec.sys{opacity:.75;cursor:default}
+  .rec.sys:hover{border-color:var(--line)}
+  .rec.correct{border-color:var(--good);background:rgba(74,222,128,.08)}
+  .feedback{margin-top:16px;padding:14px 16px;border-radius:12px;font-size:.97rem}
+  .feedback.bad{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.4)}
+  .feedback.good{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.4)}
+  .feedback.hint{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.4)}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+
+  /* Case file */
+  .q-group{margin-bottom:22px}
+  .q-group h3{font-size:1.15rem;margin-bottom:10px}
+  .q-group h3 span{color:var(--gold);font-family:'Inter',sans-serif;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;margin-right:8px}
+  .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+  .opt{text-align:left;border:1px solid var(--line);background:var(--bg2);color:var(--text);border-radius:12px;padding:12px 14px;font-size:.95rem;transition:all .15s}
+  .opt:hover{border-color:var(--purple)}
+  .opt.selected{border-color:var(--gold);background:rgba(245,197,66,.1);color:#fff}
+  .locked{text-align:center;padding:36px 20px}
+  .locked .big{font-size:2.2rem;color:var(--gold);margin-bottom:8px}
+
+  /* Reveal & results */
+  .verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:18px 0}
+  .vbox{border-radius:12px;padding:14px;border:1px solid var(--line);background:var(--bg2)}
+  .vbox .lbl{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .vbox .val{font-weight:600;margin-top:2px}
+  .vbox .mark{font-weight:700;font-size:.85rem;margin-top:6px}
+  .vbox.ok{border-color:rgba(74,222,128,.5)} .vbox.ok .mark{color:var(--good)}
+  .vbox.no{border-color:rgba(248,113,113,.5)} .vbox.no .mark{color:var(--bad)}
+  .reveal h3{font-size:1.25rem;margin:22px 0 10px;color:var(--gold)}
+  .reveal p{margin-bottom:12px}
+  .reveal ul{padding-left:20px}
+  .reveal li{margin-bottom:8px}
+  .score-row{margin-bottom:18px}
+  .score-row .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .score-row .name{font-weight:600}
+  .score-row .pts{font-family:ui-monospace,Menlo,monospace;color:var(--gold);font-weight:700}
+  .score-row .desc{font-size:.88rem;color:var(--muted);margin-bottom:6px}
+  .bar{height:10px;background:var(--bg);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--gold));border-radius:999px;transition:width 1.1s ease}
+  .rank{text-align:center;margin:26px 0 8px}
+  .rank .total{font-family:'Playfair Display',serif;font-size:3.4rem;font-weight:900;color:var(--gold);line-height:1}
+  .rank .title{font-family:'Playfair Display',serif;font-size:1.8rem;margin-top:6px}
+  .ranks{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .ranks .chip.on{border-color:var(--gold);color:var(--gold)}
+  .center{text-align:center}
+
+  /* Toast */
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--panel2);border:1px solid var(--gold);color:var(--text);padding:12px 20px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.5);font-size:.95rem;transition:transform .35s ease;z-index:50;max-width:calc(100% - 32px)}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  #toast b{color:var(--gold)}
+
+  .fade{animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  @media (max-width:560px){
+    .panel{padding:18px}
+    .rec{grid-template-columns:70px 1fr}
+    .bubble{max-width:96%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   SETTINGS — change this link to your InSync Create website
+   ========================================================= */
+const INSYNC_URL = "https://PASTE-YOUR-WEBSITE-HERE.com";
+
+/* =========================================================
+   EVIDENCE
+   ========================================================= */
+const E = {
+  code:{title:`Authorized access code`,src:`Display Case`,
+    text:`The display case wasn't forced. Its keypad accepted a valid staff access code, so whoever opened it knew a real code.`},
+  outage:{title:`Three-minute camera outage`,src:`Security Desk`,
+    text:`The trophy room cameras went dark from 8:41 to 8:44 PM. The lobby camera runs on a separate system and never went offline.`},
+  powerstrip:{title:`Switched-off power strip`,src:`Staff Hallway`,
+    text:`The camera power strip in the staff hallway was switched off by hand, then switched back on. That's no glitch. Someone flipped it.`},
+  glove:{title:`Torn gold glove fragment`,src:`Staff Hallway`,
+    text:`The fingertip of a gold, sequined glove, snagged on the hinge of the hallway door. The stitching looks theatrical.`},
+  glitter:{title:`Glitter trail`,src:`Staff Hallway`,
+    text:`A faint trail of gold glitter runs from the trophy room, down the staff hallway, and stops at the backstage door of the Grand Hall.`},
+  schedule:{title:`Event schedule`,src:`Event Schedule`,
+    text:`8:30 Max Mischief's show in the Grand Hall, featuring "The Vanishing Cabinet" from 8:40 to 8:44. 8:35 to 8:50 Penelope's welcome speech in the East Gallery. Sterling in VIP seating, Grand Hall. Barry posted at the lobby security desk all evening.`},
+  penelopeSpeech:{title:`Penelope's speech alibi`,src:`Interview: Penelope`,
+    text:`About forty guests watched Penelope give her speech in the East Gallery from 8:35 to 8:50, the entire theft window.`},
+  penelopeInsurance:{title:`Insurance renewal`,src:`Interview: Penelope`,
+    text:`The trophy's insurance is up for renewal next week. A theft now would ruin the museum's coverage, which makes it a disaster for Penelope rather than a payday.`},
+  maxStruggling:{title:`Max's struggling show`,src:`Interview: Penelope`,
+    text:`Max's ticket sales have collapsed and his agent dropped him. He was overheard saying, "One big headline is all I need."`},
+  trunk:{title:`The sealed prop trunk`,src:`Interview`,
+    text:`Max insists his prop trunk backstage stay locked. During the lockdown he tried to wheel it toward the loading door, and Barry noticed it was much heavier than when it arrived.`},
+  maxCabinet:{title:`Four unseen minutes`,src:`Interview: Max`,
+    text:`Max claims he was inside the Vanishing Cabinet from 8:40 to 8:44. No one actually saw him during those four minutes, which overlap the camera outage exactly.`},
+  maxGlove:{title:`Max's missing glove`,src:`Interview: Max`,
+    text:`Max is wearing only his left gold glove. He keeps his right hand in his pocket and says the other glove is "resting."`},
+  sterlingOffer:{title:`Sterling's rejected offer`,src:`Interview: Sterling`,
+    text:`Sterling offered $2 million for the trophy last month. The museum refused. That's a strong motive, but motive alone proves nothing.`},
+  sterlingReceipt:{title:`Bar receipt, 8:41 PM`,src:`Interview: Sterling`,
+    text:`The Grand Hall bartender's printed tab shows Sterling ordering a sparkling water at 8:41 PM, in full view of a dozen guests.`},
+  barryLobby:{title:`Lobby camera footage`,src:`Interview: Barry`,
+    text:`The lobby camera, unaffected by the outage, shows Barry at his desk from 8:30 to 8:55, eating a meatball sub.`},
+  accessLog:{title:`Barry's code opened the case`,src:`Security Puzzle`,
+    text:`At 8:42 PM, in the middle of the camera outage, the display case was opened with Code 4471, which belongs to Barry Button. Yet the lobby camera shows Barry at his desk.`},
+  mindcard:{title:`The mind-reading card`,src:`Interview: Barry`,
+    text:`At 7:50 PM, Max performed a "mind-reading" trick on Barry: "Write any four-digit number on this card." Barry wrote his access code, 4471. Max kept the card.`}
+};
+const ALL_EV = Object.keys(E);
+const KEY_CLUES = ['mindcard','maxGlove','maxCabinet','trunk'];
+
+/* =========================================================
+   CRIME SCENE
+   ========================================================= */
+const SCENE = [
+  {id:'case',name:'Display Case',sym:'◆',
+    text:`The glass case sits empty on its velvet pedestal. There are no scratches, no broken glass, and no pry marks. The keypad's small screen still reads: <b class="gold">ACCESS GRANTED</b>. Whoever did this didn't break in. They were let in.`,
+    gives:['code']},
+  {id:'desk',name:'Security Desk',sym:'◉',
+    text:`A bank of monitors glows in the lobby. The trophy room feed shows a gap stamped <b class="gold">NO SIGNAL 8:41 to 8:44 PM</b>. Interestingly, the lobby camera on the next monitor kept recording the whole time. A half-eaten meatball sub sits beside the keyboard.`,
+    gives:['outage']},
+  {id:'hall',name:'Staff Hallway',sym:'▸',
+    text:`A narrow corridor links the trophy room to the backstage area of the Grand Hall. The power strip feeding the trophy room cameras is mounted here, within easy reach. Something gold glints on the door hinge, and the floor sparkles faintly under the lights.`,
+    gives:['powerstrip','glove','glitter']},
+  {id:'sched',name:'Event Schedule',sym:'≡',
+    text:`A printed run-of-show is taped to the trophy room door. Several people had reasons to be near this room tonight, and the timings are very precise.`,
+    gives:['schedule']}
+];
+
+/* =========================================================
+   SUSPECTS & QUESTIONS
+   ========================================================= */
+const SUSPECTS = [
+  {id:'penelope',name:'Penelope Priceless',role:'The Curator',init:'PP',
+    blurb:`Protective of the museum and obsessed with its reputation. She has access to the display case and knows every security procedure by heart.`,
+    questions:[
+      {id:'where',q:`Where were you when the trophy disappeared?`,
+        a:`Giving my welcome speech in the East Gallery, from 8:35 until 8:50. Forty guests and a string quartet can confirm it. I was mid-sentence about our "commitment to security" when this happened. The irony is unbearable.`,gives:'penelopeSpeech'},
+      {id:'why',q:`Why were you near the trophy room?`,
+        a:`I opened the case at 7:15 with my own code to polish the trophy, as I do before every event. I closed it at 7:18 and didn't return until 9:02, when I found it empty.`},
+      {id:'money',q:`Was the trophy insured?`,
+        a:`Yes, and the policy renews next week. Do you know what a theft does to a renewal? It would gut this museum. I want that trophy back more than anyone in this building.`,gives:'penelopeInsurance'},
+      {id:'who',q:`Who do you think took the trophy?`,
+        a:`That collector, Bucksworth, has been circling it for months. Although I'd keep an eye on our magician too. His show is a sinking ship. Last week I heard him say, "One big headline is all I need."`,gives:'maxStruggling'},
+      {id:'glove',req:['glove'],q:`Can you explain this gold glove fragment?`,
+        a:`Gold sequins? Detective, I wear navy wool. There is exactly one person in this building gaudy enough to own gloves like that, and he pulls rabbits out of hats for a living.`},
+      {id:'glitter',req:['glitter'],q:`The glitter trail ends at the backstage door. What's back there?`,
+        a:`Max's dressing area, his props, and that enormous trunk he wheeled in this afternoon. He told the staff it holds "the secret of the century" and nobody is allowed to touch it.`,gives:'trunk'}
+    ]},
+  {id:'max',name:'Max Mischief',role:'The Magician',init:'MM',
+    blurb:`A dramatic performer who was entertaining guests in the Grand Hall next door. His glittering costume and magician's gloves have not gone unnoticed.`,
+    questions:[
+      {id:'where',q:`Where were you when the trophy disappeared?`,
+        a:`Inside the Vanishing Cabinet, darling! From 8:40 to 8:44, I was gone. Poof! Ask anyone. Well, they couldn't actually see me. That's rather the point of the trick.`,gives:'maxCabinet'},
+      {id:'why',q:`Why were you near the trophy room?`,
+        a:`The Grand Hall is right next door. My artistry simply can't be contained by walls. Besides, the acoustics in that hallway are divine for vocal warmups.`},
+      {id:'who',q:`Who do you think took the trophy?`,
+        a:`If I'd taken it, I'd have made it vanish in front of everyone, with smoke and a drumroll. Imagine the headlines! "Magician Makes Priceless Trophy Disappear!" ...Ha! Joking, of course. Mostly. Probably the rich fellow.`},
+      {id:'glove',req:['glove'],q:`Can you explain this gold glove fragment?`,
+        a:`My gloves? Pristine! Immaculate! ...Why yes, I am only wearing the left one. The right one is resting. Gloves get tired, Detective. You wouldn't understand. <i>(He slides his right hand into his pocket.)</i>`,gives:'maxGlove'},
+      {id:'card',req:['mindcard'],q:`Did you perform a mind-reading trick on Barry tonight?`,
+        a:`A magician never reveals his secrets! ...I may have asked a guard to write down a number. Coincidence! A delightful, entirely innocent coincidence. <i>(A bead of sweat rolls down his forehead.)</i>`},
+      {id:'trunk',req:['trunk'],q:`Can we open your prop trunk?`,
+        a:`Absolutely not! That trunk contains the secret of the century. I mean... my doves. Very shy doves. They hate being looked at. Especially by detectives.`}
+    ]},
+  {id:'sterling',name:'Sterling Bucksworth',role:'The Collector',init:'SB',
+    blurb:`A wealthy collector who offered to buy the trophy and was turned down. He has the strongest motive, but swears he never entered the staff hallway.`,
+    questions:[
+      {id:'where',q:`Where were you when the trophy disappeared?`,
+        a:`At the Grand Hall bar, enduring that ridiculous magic show. I ordered a sparkling water at 8:41. The bartender printed my tab, and here it is. I keep every receipt, Detective. Wealth is in the details.`,gives:'sterlingReceipt'},
+      {id:'why',q:`Why were you near the trophy room?`,
+        a:`I wasn't. I have never set foot in your staff hallway. I don't do hallways. I have people for hallways.`},
+      {id:'motive',q:`Did you want the trophy for yourself?`,
+        a:`Obviously. I offered two million dollars last month and that curator laughed at me. But I buy beautiful things, Detective. I don't steal them. Stealing is for amateurs.`,gives:'sterlingOffer'},
+      {id:'who',q:`Who do you think took the trophy?`,
+        a:`The magician. When he "vanished" into that cabinet, I could have sworn I heard a door creak backstage. Nobody else noticed. They were too busy clapping.`},
+      {id:'glove',req:['glove'],q:`Do you own any gold gloves?`,
+        a:`I own gold cufflinks, a gold pen, and a gold-plated yacht. Gloves are for surgeons and magicians, and I am neither.`}
+    ]},
+  {id:'barry',name:'Barry Button',role:'The Security Guard',init:'BB',
+    blurb:`Responsible for keeping the museum safe. He says the camera outage was an accident and insists he never left his desk.`,
+    questions:[
+      {id:'where',q:`Where were you when the trophy disappeared?`,
+        a:`Right at my desk, the whole night! Check the lobby camera, it's on its own system. You'll see me there from 8:30 on. You'll also see me eating a meatball sub, which I'd appreciate you not mentioning to my supervisor.`,gives:'barryLobby'},
+      {id:'why',q:`Why were you near the trophy room?`,
+        a:`I wasn't! My desk is in the lobby. I only watch the trophy room on the monitors. Which, uh, went dark. Not my fault!`},
+      {id:'outage',req:['outage'],q:`Why did the cameras go offline?`,
+        a:`Must've been a glitch. They came back on by themselves after three minutes. Old wiring, probably. This building is older than my grandma.`},
+      {id:'strip',req:['powerstrip'],q:`The power strip was switched off by hand. Who'd know where it is?`,
+        a:`Huh. Anyone working backstage, I guess. The strip's right by the backstage door. The magician's crew was plugging fog machines in around there all evening.`},
+      {id:'who',q:`Who do you think took the trophy?`,
+        a:`My money's on the rich guy. Nobody needs a gold-plated yacht. That's a red flag.`},
+      {id:'code',req:['accessLog'],q:`Your access code opened the case at 8:42. Explain that.`,
+        a:`What? That's impossible, I was eating my sub! Wait... earlier, around 7:50, the magician did a mind-reading trick on me. He said, "Write any four-digit number on this card." I panicked and wrote my door code. It's the only number I can remember! He kept the card.`,gives:'mindcard'},
+      {id:'moved',req:['glitter'],q:`Did anyone try to move anything during the lockdown?`,
+        a:`Yeah, actually. Max tried to wheel his big prop trunk out the loading door. I stopped him. That thing weighed a ton, way heavier than when he brought it in this afternoon.`,gives:'trunk'}
+    ]}
+];
+
+/* =========================================================
+   PUZZLE
+   ========================================================= */
+const PUZZLE = {
+  clues:[
+    `The trophy was <b>seen in its case</b> during the 8:30 PM guest tour.`,
+    `The thief struck while the trophy room cameras were <b>dark</b>.`,
+    `Penelope opened the case at 9:02 PM and found it <b>already empty</b>.`
+  ],
+  records:[
+    {id:'a',time:'7:15 PM',text:`Code 1902 (P. Priceless). Display case opened, closed 7:18`},
+    {id:'b',time:'7:50 PM',text:`Code 3310 (Maintenance). Staff hallway door opened`},
+    {id:'s1',time:'8:41 PM',text:`SYSTEM: Trophy room cameras OFFLINE`,sys:true},
+    {id:'c',time:'8:42 PM',text:`Code 4471 (B. Button). Display case opened`},
+    {id:'s2',time:'8:44 PM',text:`SYSTEM: Trophy room cameras ONLINE`,sys:true},
+    {id:'d',time:'9:02 PM',text:`Code 1902 (P. Priceless). Display case opened`}
+  ],
+  answer:'c',
+  wrong:{
+    a:`That was before the 8:30 tour, when the trophy was still in the case. It can't be the theft.`,
+    b:`That's a hallway door, not the display case. And it happened while the trophy was still safely on display.`,
+    d:`By 9:02 the case was already empty. This is when Penelope discovered the theft, not when it happened.`
+  },
+  hint:`Cross out every record from before the 8:30 tour or after the theft was discovered. Then look only at what happened between the two SYSTEM lines.`
+};
+
+/* =========================================================
+   ACCUSATION
+   ========================================================= */
+const ACCUSE = {
+  culprit:{label:'The culprit',sub:'Who took the trophy?',answer:'max',
+    opts:[{id:'penelope',t:'Penelope Priceless, the Curator'},{id:'max',t:'Max Mischief, the Magician'},{id:'sterling',t:'Sterling Bucksworth, the Collector'},{id:'barry',t:'Barry Button, the Security Guard'}]},
+  method:{label:'The method',sub:'How did they open the display case?',answer:'card',
+    opts:[{id:'curator',t:`Used the curator's own access code`},{id:'card',t:`Used Barry's code, tricked out of him with a "mind-reading" card`},{id:'bribe',t:`Bribed a staff member for a master code`},{id:'pick',t:`Picked the lock with a hidden tool`}]},
+  hide:{label:'The hiding place',sub:'Where is the trophy now?',answer:'trunk',
+    opts:[{id:'trunk',t:`Inside the magician's prop trunk backstage`},{id:'safe',t:`In the curator's office safe`},{id:'desk',t:`In the security desk drawer`},{id:'limo',t:`In the collector's limousine`}]}
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let S;
+function freshState(){
+  return {screen:'title',tab:'scene',loc:null,suspect:null,ev:[],visited:[],asked:{},log:{},
+    puzzle:{solved:false,attempts:0,hintUsed:false,selected:null,msg:null},
+    acc:{culprit:null,method:null,hide:null},score:null};
+}
+S = freshState();
+
+const has = id => S.ev.includes(id);
+function addEvidence(ids){
+  const added=[];
+  ids.forEach(id=>{ if(id && !has(id)){ S.ev.push(id); added.push(id);} });
+  if(added.length) toast(added.length===1 ? `New evidence: <b>${E[added[0]].title}</b>` : `<b>${added.length} new clues</b> added to your notebook`);
+  return added;
+}
+let toastTimer;
+function toast(html){
+  const t=document.getElementById('toast');
+  t.innerHTML=html; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+function go(screen){ S.screen=screen; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+function setTab(tab){ S.tab=tab; S.loc=null; S.suspect=null; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+const app = document.getElementById('app');
+function render(){
+  const views={title:viewTitle,intro:viewIntro,game:viewGame,reveal:viewReveal,results:viewResults,promo:viewPromo};
+  app.innerHTML = `<div class="fade">${views[S.screen]()}</div>`;
+  if(S.screen==='results') requestAnimationFrame(()=>setTimeout(()=>{
+    document.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%');
+  },60));
+}
+
+function viewTitle(){
+  return `<div class="title-screen">
+    <div class="eyebrow">InSync Create presents</div>
+    <h1>THE GREAT<br>HEIST</h1>
+    <div class="divider"></div>
+    <p class="tagline">One missing trophy. Four suspicious suspects. One detective who has to get it right.</p>
+    <p class="muted">Your mission: Solve the case before the museum's grand reopening.</p>
+    <div class="meta"><span class="chip">Estimated playtime: 5–10 minutes</span><span class="chip">Text-only mystery</span><span class="chip">Version 3</span></div>
+    <button class="btn" onclick="go('intro')">Start Investigation</button>
+  </div>`;
+}
+
+function viewIntro(){
+  return `<div style="padding-top:6vh">
+    <div class="eyebrow" style="margin-bottom:10px">Case File #0417</div>
+    <h2 class="section-title" style="font-size:2.2rem">The Golden Toilet Trophy is gone.</h2>
+    <div class="panel story" style="margin-top:18px">
+      <p>It's 9:05 PM at the Royal Museum. Tonight's private gala was meant to celebrate the museum's most famous and most ridiculous treasure: the <span class="gold">Golden Toilet Trophy</span>, solid gold and utterly priceless.</p>
+      <p>Twenty minutes ago, the curator opened its display case and found nothing but velvet.</p>
+      <p>The museum is now on lockdown. Every door is sealed, and nobody leaves until the thief is found. The grand public reopening is tomorrow morning, and the press is already gathering outside.</p>
+      <p>Four people had the means, the motive, or the opportunity. Search the scene, question the suspects, crack the security records, and name the culprit.</p>
+      <p class="purple" style="font-weight:600">The museum is counting on you, Detective.</p>
+    </div>
+    <div class="actions"><button class="btn" onclick="go('game')">Enter the Trophy Room</button></div>
+  </div>`;
+}
+
+function viewGame(){
+  const tabs=[
+    {id:'scene',t:'Crime Scene'},
+    {id:'suspects',t:'Suspects'},
+    {id:'notebook',t:'Notebook',count:S.ev.length},
+    {id:'puzzle',t:'Security Puzzle',done:S.puzzle.solved},
+    {id:'case',t:'Final Case File',lock:!S.puzzle.solved}
+  ];
+  const body={scene:tabScene,suspects:tabSuspects,notebook:tabNotebook,puzzle:tabPuzzle,case:tabCase}[S.tab]();
+  return `
+    <div class="topbar">
+      <div class="brand">The Great Heist</div>
+      <div class="progress">Evidence found: <b>${S.ev.length}</b> / ${ALL_EV.length}</div>
+    </div>
+    <nav class="tabs">${tabs.map(t=>`<button class="tab ${S.tab===t.id?'active':''}" onclick="setTab('${t.id}')">${t.t}${t.count?`<span class="count">${t.count}</span>`:''}${t.done?' <span class="gold">✓</span>':''}${t.lock?'<span class="lock">🔒</span>':''}</button>`).join('')}</nav>
+    ${body}`;
+}
+
+/* ---- Crime scene ---- */
+function tabScene(){
+  if(S.loc){
+    const l=SCENE.find(x=>x.id===S.loc);
+    return `<button class="back" onclick="S.loc=null;render()">← Back to the trophy room</button>
+      <div class="panel">
+        <div class="detail-head"><span class="sym gold" style="font-size:1.6rem">${l.sym}</span><h2 class="section-title" style="margin:0">${l.name}</h2></div>
+        <p class="story" style="font-size:1.05rem">${l.text}</p>
+        <div class="found"><div class="eyebrow" style="margin-bottom:10px">Added to your notebook</div>
+          ${l.gives.map(evCard).join('')}
+        </div>
+      </div>`;
+  }
+  return `<h2 class="section-title">The Trophy Room</h2>
+    <p class="section-sub">The display case is unlocked. The room's security system briefly went offline. A small trail of glitter leads toward a staff-only hallway. Choose where to look, in any order.</p>
+    <div class="grid">${SCENE.map(l=>{
+      const done=S.visited.includes(l.id);
+      return `<button class="card ${done?'done':''}" onclick="visit('${l.id}')">
+        <span class="sym">${l.sym}</span><h3>${l.name}</h3>
+        <div class="status">${done?'✓ Searched':'Not yet searched'}</div></button>`;
+    }).join('')}</div>`;
+}
+function visit(id){
+  const l=SCENE.find(x=>x.id===id);
+  if(!S.visited.includes(id)) S.visited.push(id);
+  addEvidence(l.gives);
+  S.loc=id; render(); window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---- Suspects ---- */
+function availableQs(s){ const asked=S.asked[s.id]||[]; return s.questions.filter(q=>!asked.includes(q.id) && (q.req||[]).every(has)); }
+function lockedQs(s){ const asked=S.asked[s.id]||[]; return s.questions.filter(q=>!asked.includes(q.id) && !(q.req||[]).every(has)); }
+
+function tabSuspects(){
+  if(S.suspect) return viewInterview(SUSPECTS.find(x=>x.id===S.suspect));
+  return `<h2 class="section-title">The Suspects</h2>
+    <p class="section-sub">Each has a personality, a possible motive, and a story that may or may not be true. New questions appear as you find evidence.</p>
+    <div class="grid">${SUSPECTS.map(s=>{
+      const n=availableQs(s).length, asked=(S.asked[s.id]||[]).length;
+      return `<button class="card" onclick="S.suspect='${s.id}';render();window.scrollTo({top:0,behavior:'smooth'})">
+        <div class="monogram">${s.init}</div>
+        <h3>${s.name}</h3><div class="role">${s.role}</div>
+        <p class="muted" style="font-size:.9rem;margin:8px 0">${s.blurb}</p>
+        <div class="status">${n?`<span class="gold">${n} question${n>1?'s':''} available</span>`:asked?'✓ Nothing more to ask for now':''}</div>
+      </button>`;}).join('')}</div>`;
+}
+
+function viewInterview(s){
+  const log=S.log[s.id]||[];
+  const qs=availableQs(s), locked=lockedQs(s);
+  return `<button class="back" onclick="S.suspect=null;render()">← All suspects</button>
+    <div class="panel">
+      <div class="profile"><div class="monogram lg">${s.init}</div>
+        <div><h2 class="section-title" style="margin:0">${s.name}</h2><div class="role">${s.role}</div></div></div>
+      <p class="muted">${s.blurb}</p>
+      ${log.length?`<div class="convo">${log.map(m=>`
+        <div class="bubble q"><div class="who">You</div>${m.q}</div>
+        <div class="bubble a"><div class="who">${s.name.split(' ')[0]}</div>${m.a}${m.ev?`<span class="newev">+ Notebook: ${E[m.ev].title}</span>`:''}</div>`).join('')}</div>`:''}
+      <div style="margin-top:${log.length?'4':'18'}px">
+        ${qs.length?`<div class="eyebrow" style="margin-bottom:10px">Ask a question</div>
+          <div class="qlist">${qs.map(q=>`<button class="qbtn" onclick="ask('${s.id}','${q.id}')">${q.req?'<span class="tag">Evidence</span>':''}${q.q}</button>`).join('')}</div>`
+          :`<p class="muted">You've asked everything you can for now.</p>`}
+        ${locked.length?`<p class="hintline">${locked.length} more question${locked.length>1?'s':''} will unlock when you find related evidence.</p>`:''}
+      </div>
+    </div>`;
+}
+function ask(sid,qid){
+  const s=SUSPECTS.find(x=>x.id===sid), q=s.questions.find(x=>x.id===qid);
+  (S.asked[sid]=S.asked[sid]||[]).push(qid);
+  const added=q.gives?addEvidence([q.gives]):[];
+  (S.log[sid]=S.log[sid]||[]).push({q:q.q,a:q.a,ev:added[0]||null});
+  render();
+  const bubbles=document.querySelectorAll('.bubble.a');
+  if(bubbles.length) bubbles[bubbles.length-1].scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ---- Notebook ---- */
+function evCard(id){ const e=E[id]; return `<div class="ev"><h4>${e.title}</h4><p>${e.text}</p><div class="src">${e.src}</div></div>`; }
+function tabNotebook(){
+  return `<h2 class="section-title">Detective's Notebook</h2>
+    <p class="section-sub">Which details connect, and which are distractions? A motive alone doesn't prove a theft. Look for clues that support each other.</p>
+    ${S.ev.length?S.ev.map(evCard).join(''):`<div class="panel locked"><div class="big">✎</div><p class="muted">Your notebook is empty. Search the crime scene and question the suspects to fill it.</p></div>`}
+    ${S.ev.length&&S.ev.length<ALL_EV.length?`<p class="hintline">${ALL_EV.length-S.ev.length} clue${ALL_EV.length-S.ev.length>1?'s':''} still undiscovered.</p>`:''}
+    ${S.ev.length===ALL_EV.length?`<p class="hintline gold">You've found every clue in the museum. Impressive.</p>`:''}`;
+}
+
+/* ---- Puzzle ---- */
+function tabPuzzle(){
+  const P=S.puzzle;
+  return `<h2 class="section-title">The Security Puzzle</h2>
+    <p class="section-sub">The museum's access log recorded every keypad entry tonight. Use the facts below to find the one record that matters most.</p>
+    <div class="panel">
+      <div class="eyebrow" style="margin-bottom:10px">What you know</div>
+      <ul class="clue-list">${PUZZLE.clues.map(c=>`<li>${c}</li>`).join('')}</ul>
+      <div class="eyebrow" style="margin-bottom:10px">Access log: Royal Museum</div>
+      <div class="log">${PUZZLE.records.map(r=>{
+        if(r.sys) return `<div class="rec sys"><span class="time">${r.time}</span><span>${r.text}</span></div>`;
+        const cls = P.solved ? (r.id===PUZZLE.answer?'correct':'') : (P.selected===r.id?'selected':'');
+        return `<button class="rec ${cls}" ${P.solved?'disabled':''} onclick="S.puzzle.selected='${r.id}';S.puzzle.msg=null;render()"><span class="time">${r.time}</span><span>${r.text}</span></button>`;
+      }).join('')}</div>
+      ${P.solved?`<div class="feedback good"><b class="gold">Correct.</b> The case was opened at 8:42, right in the middle of the camera outage, using <b>Barry Button's code</b>. But the lobby camera shows Barry at his desk. So who else knew his code? A new clue has been added to your notebook, and Barry may have something to say about it.</div>
+        <div class="actions"><button class="btn" onclick="setTab('case')">Open the Final Case File</button><button class="btn secondary" onclick="S.tab='suspects';S.suspect='barry';render()">Question Barry</button></div>`
+      :`${P.msg?`<div class="feedback bad">${P.msg}</div>`:''}
+        ${P.hintUsed?`<div class="feedback hint"><b class="purple">Hint:</b> ${PUZZLE.hint}</div>`:''}
+        <div class="actions">
+          <button class="btn" ${P.selected?'':'disabled'} onclick="checkPuzzle()">Check This Record</button>
+          ${P.attempts>0&&!P.hintUsed?`<button class="btn secondary" onclick="S.puzzle.hintUsed=true;render()">Show a Hint</button>`:''}
+        </div>`}
+    </div>`;
+}
+function checkPuzzle(){
+  const P=S.puzzle; P.attempts++;
+  if(P.selected===PUZZLE.answer){ P.solved=true; P.msg=null; addEvidence(['accessLog']); }
+  else { P.msg=`<b>Not quite.</b> ${PUZZLE.wrong[P.selected]} Review the clues and try again.`; P.selected=null; }
+  render();
+}
+
+/* ---- Case file ---- */
+function tabCase(){
+  if(!S.puzzle.solved) return `<div class="panel locked"><div class="big">🔒</div>
+    <h2 class="section-title">Case File Sealed</h2>
+    <p class="muted" style="max-width:460px;margin:0 auto 18px">Before you can make an accusation, you need to work out which security record matters. Solve the Security Puzzle to unlock the final case file.</p>
+    <button class="btn" onclick="setTab('puzzle')">Go to the Security Puzzle</button></div>`;
+  const ready=S.acc.culprit&&S.acc.method&&S.acc.hide;
+  return `<h2 class="section-title">Final Case File</h2>
+    <p class="section-sub">Make your accusation. You only get one shot, so make sure the evidence lines up. (You can keep investigating first if you're not sure.)</p>
+    <div class="panel">
+      ${['culprit','method','hide'].map((k,i)=>{const g=ACCUSE[k];return `<div class="q-group">
+        <h3><span>0${i+1}</span>${g.sub}</h3>
+        <div class="opts">${g.opts.map(o=>`<button class="opt ${S.acc[k]===o.id?'selected':''}" onclick="S.acc.${k}='${o.id}';render()">${o.t}</button>`).join('')}</div></div>`;}).join('')}
+      <div class="actions"><button class="btn" ${ready?'':'disabled'} onclick="submitTheory()">Submit Final Theory</button></div>
+      <p class="hintline">${ready?'Submitting closes the case for good.':'Pick one answer in each of the three sections to submit.'}</p>
+    </div>`;
+}
+function submitTheory(){ S.score=computeScore(); go('reveal'); }
+
+/* =========================================================
+   SCORING
+   ========================================================= */
+function computeScore(){
+  const evPts=Math.round(S.ev.length/ALL_EV.length*30);
+  const P=S.puzzle;
+  const puzzlePts = P.hintUsed?4 : P.attempts<=1?12 : P.attempts===2?9 : 6;
+  const keyFound=KEY_CLUES.filter(has).length;
+  const reasonPts=puzzlePts+keyFound*2;
+  const c={culprit:S.acc.culprit===ACCUSE.culprit.answer, method:S.acc.method===ACCUSE.method.answer, hide:S.acc.hide===ACCUSE.hide.answer};
+  const accPts=(c.culprit?25:0)+(c.method?15:0)+(c.hide?10:0);
+  const total=evPts+reasonPts+accPts;
+  const rank= total>=85?'Master Sleuth' : total>=55?'Sharp Investigator' : 'Rookie Detective';
+  return {evPts,reasonPts,accPts,total,rank,c,keyFound};
+}
+
+/* =========================================================
+   REVEAL
+   ========================================================= */
+function optText(k){ return ACCUSE[k].opts.find(o=>o.id===S.acc[k]).t; }
+function viewReveal(){
+  const c=S.score.c, all=c.culprit&&c.method&&c.hide;
+  const head = all?`Case closed. You nailed it.` : c.culprit?`Right culprit, but the full story is a little different.` : `The real thief slipped past you this time.`;
+  return `<div class="eyebrow" style="margin-bottom:8px">The Truth Revealed</div>
+    <h2 class="section-title" style="font-size:2rem">${head}</h2>
+    <div class="verdict">${['culprit','method','hide'].map(k=>`
+      <div class="vbox ${c[k]?'ok':'no'}"><div class="lbl">${ACCUSE[k].label}</div><div class="val">${optText(k)}</div>
+      <div class="mark">${c[k]?'✓ Correct':'✗ Incorrect'}</div></div>`).join('')}</div>
+    <div class="panel reveal">
+      <h3 style="margin-top:0">What really happened</h3>
+      <p>The thief was <b class="gold">Max Mischief</b>.</p>
+      <p>With his ticket sales collapsing and his agent gone, Max needed one big headline. His plan: make the Golden Toilet Trophy "vanish," then dramatically "reappear" it on stage at tomorrow's reopening, earning front-page news for the greatest magic trick in museum history.</p>
+      <p>At 7:50 PM, Max performed a "mind-reading" trick on Barry, asking him to write any four-digit number on a card. Barry, under pressure, wrote his own access code. Max pocketed the card.</p>
+      <p>At 8:40, Max climbed into his Vanishing Cabinet in front of a full audience, then slipped out through its hidden back panel into the staff hallway. At 8:41 he switched off the camera power strip. At 8:42 he opened the display case with Barry's code, tearing a fingertip off his glove on the hallway door as he hurried back. By 8:44 the cameras were on again, the trophy was in his prop trunk, and Max was bowing to applause.</p>
+      <p>He meant to return it after his big announcement, but he never planned for a lockdown. When he tried to wheel the trunk out the loading door, Barry stopped him.</p>
+
+      <h3>The decisive clues</h3>
+      <ul>
+        <li><b>The access log</b> proved the case was opened at 8:42 with Barry's code, yet the lobby camera shows Barry at his desk. Someone else had his code.</li>
+        <li><b>The mind-reading card</b> explains exactly how Max got it.</li>
+        <li><b>Four unseen minutes</b> in the Vanishing Cabinet line up perfectly with the camera outage.</li>
+        <li><b>The torn gold glove</b> matches Max's missing right glove, and the <b>glitter trail</b> leads straight backstage.</li>
+        <li><b>The heavy, sealed prop trunk</b> is where the trophy has been all along.</li>
+      </ul>
+
+      <h3>Why the others looked guilty</h3>
+      <ul>
+        <li><b>Sterling Bucksworth</b> had the biggest motive, but a motive isn't proof. His 8:41 bar receipt puts him in the Grand Hall during the theft.</li>
+        <li><b>Barry Button</b>'s code opened the case and he called the outage a "glitch," but the lobby camera proves he never left his desk. He was the victim of a trick, not the thief.</li>
+        <li><b>Penelope Priceless</b> had access and knew the procedures, but forty guests watched her speech, and with the insurance renewal looming, a theft hurt her more than anyone.</li>
+      </ul>
+    </div>
+    <div class="actions"><button class="btn" onclick="go('results')">See Your Detective Score</button></div>`;
+}
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+function viewResults(){
+  const s=S.score;
+  const row=(name,desc,pts,max)=>`<div class="score-row"><div class="top"><span class="name">${name}</span><span class="pts">${pts} / ${max}</span></div>
+    <div class="desc">${desc}</div><div class="bar"><i data-w="${Math.round(pts/max*100)}"></i></div></div>`;
+  return `<div class="center" style="padding-top:3vh">
+      <div class="eyebrow">Case Results</div>
+      <h2 class="section-title" style="font-size:2.2rem;margin-top:6px">How good is your detective work?</h2>
+    </div>
+    <div class="rank"><div class="total">${s.total}</div><div class="muted">out of 100</div><div class="title">${s.rank}</div>
+      <div class="ranks">${['Rookie Detective','Sharp Investigator','Master Sleuth'].map(r=>`<span class="chip ${r===s.rank?'on':''}">${r}</span>`).join('')}</div></div>
+    <div class="panel" style="margin-top:22px">
+      ${row('Evidence discovered',`How thoroughly you investigated. You found ${S.ev.length} of ${ALL_EV.length} clues.`,s.evPts,30)}
+      ${row('Reasoning',`Whether you connected the right clues: solving the security puzzle${S.puzzle.attempts>1||S.puzzle.hintUsed?'':' on the first try'}${S.puzzle.hintUsed?' (with a hint)':''}, plus ${s.keyFound} of ${KEY_CLUES.length} key clues uncovered.`,s.reasonPts,20)}
+      ${row('Final accusation',`Whether the culprit, method, and hiding place were correct.`,s.accPts,50)}
+    </div>
+    <p class="center muted" style="margin-top:18px">${s.rank==='Master Sleuth'?'The museum is naming a wing after you. Probably not the bathroom.':s.rank==='Sharp Investigator'?'Solid work, Detective. A little more digging and you\'d be a legend.':'Every great detective starts somewhere. Try again and dig deeper.'}</p>
+    <div class="actions" style="justify-content:center"><button class="btn secondary" onclick="restart()">Play Again</button><button class="btn" onclick="go('promo')">Continue</button></div>`;
+}
+function restart(){ S=freshState(); S.screen='title'; render(); window.scrollTo({top:0}); }
+
+/* =========================================================
+   PROMO
+   ========================================================= */
+function viewPromo(){
+  return `<div class="title-screen">
+    <div class="eyebrow">InSync Create</div>
+    <h2 class="serif" style="font-size:clamp(2rem,6vw,3.2rem);line-height:1.15;max-width:640px">Enjoyed the mystery?<br><span class="gold">Imagine a game made just for you.</span></h2>
+    <div class="divider"></div>
+    <p class="tagline muted">InSync Create designs custom games for groups, events, classrooms, parties, and other occasions.</p>
+    <div class="actions" style="justify-content:center">
+      <a class="btn" href="${INSYNC_URL}" target="_blank" rel="noopener">Explore InSync Create</a>
+      <button class="btn secondary" onclick="restart()">Play The Great Heist Again</button>
+    </div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
