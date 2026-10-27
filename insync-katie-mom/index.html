@@ -227,6 +227,29 @@ makeWorld();render();
 });
 makeWorld();render();
 })();
+  // Computer keyboard controls: hold arrow keys to steer
+const keys = { ArrowLeft: false, ArrowRight: false };
+
+window.addEventListener('keydown', (e) => {
+  if (e.key in keys && canSteer()) {
+    e.preventDefault();
+    keys[e.key] = true;
+    steer = keys.ArrowLeft ? -1 : keys.ArrowRight ? 1 : 0;
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.key in keys) {
+    keys[e.key] = false;
+    steer = keys.ArrowLeft ? -1 : keys.ArrowRight ? 1 : 0;
+  }
+});
+
+window.addEventListener('blur', () => {
+  keys.ArrowLeft = false;
+  keys.ArrowRight = false;
+  steer = 0;
+});
 </script>
 </body>
 </html>
