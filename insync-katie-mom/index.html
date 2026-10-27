@@ -1,66 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#075477"><title>Deep Catch</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#075477">
+<title>Deep Catch</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;background:#07344f;color:#fff;touch-action:manipulation}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;font-family:system-ui,sans-serif;background:#07344f;color:white;touch-action:manipulation}
 .game{position:relative;margin:auto;width:100%;max-width:480px;height:100dvh;min-height:520px;overflow:hidden;background:linear-gradient(#86d3ff 0%,#d3f3ff 14%,#26b4d4 17%,#087fa8 40%,#075478 72%,#052c49 100%);isolation:isolate}
-.sky{position:absolute;inset:0 0 auto;height:17%;background:linear-gradient(#7dc9f7,#c7efff);z-index:-2}.sun{position:absolute;right:12%;top:3%;width:44px;height:44px;background:#ffe6a1;border-radius:50%;box-shadow:0 0 30px #fff1bf}
-.cloud{position:absolute;top:8%;left:9%;width:82px;height:20px;background:#ffffffb5;border-radius:30px}.cloud:before,.cloud:after{content:"";position:absolute;bottom:3px;border-radius:50%;background:inherit}.cloud:before{width:32px;height:30px;left:10px}.cloud:after{width:39px;height:38px;left:34px}
-.hill{position:absolute;top:12%;height:9%;width:70%;background:#4b9e83;border-radius:50% 50% 0 0;z-index:-1}.hill.left{left:-20%}.hill.right{right:-20%;width:62%;height:12%;top:10%}
+.sky{position:absolute;inset:0 0 auto;height:17%;background:linear-gradient(#7dc9f7,#c7efff);z-index:-2}
+.sun{position:absolute;right:12%;top:3%;width:44px;height:44px;background:#ffe6a1;border-radius:50%;box-shadow:0 0 30px #fff1bf}
+.cloud{position:absolute;top:8%;left:9%;width:82px;height:20px;background:#ffffffb5;border-radius:30px}
+.cloud:before,.cloud:after{content:"";position:absolute;bottom:3px;border-radius:50%;background:inherit}
+.cloud:before{width:32px;height:30px;left:10px}
+.cloud:after{width:39px;height:38px;left:34px}
+.hill{position:absolute;top:12%;height:9%;width:70%;background:#4b9e83;border-radius:50% 50% 0 0;z-index:-1}
+.hill.left{left:-20%}
+.hill.right{right:-20%;width:62%;height:12%;top:10%}
 .waterline{position:absolute;top:16%;height:14px;width:120%;left:-10%;background:#b4f5ffb0;border-radius:50%;box-shadow:0 5px 0 #1aa6cb;z-index:3}
-.hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;z-index:12}.pill{background:#063653e8;border:1px solid #b9f3ff80;border-radius:16px;padding:8px 12px;box-shadow:0 4px 0 #04324a55;font-size:11px;color:#bcefff;font-weight:800}.pill strong{display:block;color:white;font-size:19px;line-height:1.15}
-.boat{position:absolute;top:11%;left:50%;transform:translateX(-50%);width:180px;height:66px;z-index:4}.hull{position:absolute;bottom:0;left:0;width:100%;height:35px;background:linear-gradient(#fef8e9,#d7e5e9);clip-path:polygon(0 0,100% 0,82% 100%,18% 100%);border-bottom:5px solid #ec9b4c}.rim{position:absolute;top:26px;left:6px;width:168px;height:9px;border-radius:5px;background:#f9fbf1;border:2px solid #8eb9c7}.person{position:absolute;left:45px;top:-18px;font-size:40px;filter:drop-shadow(0 3px 1px #22536c55)}.dog{position:absolute;right:22px;top:0;font-size:30px}
+.hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;z-index:12}
+.pill{background:#063653e8;border:1px solid #b9f3ff80;border-radius:16px;padding:8px 12px;box-shadow:0 4px 0 #04324a55;font-size:11px;color:#bcefff;font-weight:800}
+.pill strong{display:block;color:white;font-size:19px;line-height:1.15}
+.boat{position:absolute;top:11%;left:50%;transform:translateX(-50%);width:180px;height:66px;z-index:4}
+.hull{position:absolute;bottom:0;left:0;width:100%;height:35px;background:linear-gradient(#fef8e9,#d7e5e9);clip-path:polygon(0 0,100% 0,82% 100%,18% 100%);border-bottom:5px solid #ec9b4c}
+.rim{position:absolute;top:26px;left:6px;width:168px;height:9px;border-radius:5px;background:#f9fbf1;border:2px solid #8eb9c7}
+.person{position:absolute;left:45px;top:-18px;font-size:40px}
+.dog{position:absolute;right:22px;top:0;font-size:30px}
 .scene-window{position:absolute;top:18%;bottom:0;left:0;right:0;overflow:hidden;z-index:1}
 .world{position:absolute;left:0;right:0;top:0;height:2600px;transform:translateY(0);will-change:transform;background:linear-gradient(#18a7cd 0%,#087da7 25%,#07618b 55%,#06476d 78%,#062c49 100%)}
 .rays{position:absolute;inset:0;background:repeating-linear-gradient(72deg,transparent 0 42px,#9ceeff12 44px 53px,transparent 55px 90px)}
-.rock{position:absolute;width:90px;height:68px;background:#174e68;border-radius:60% 50% 20% 20%;box-shadow:inset -12px -5px #103e5b}.plant{position:absolute;font-size:44px;opacity:.75}
+.plant{position:absolute;font-size:44px;opacity:.75}
 .fish{position:absolute;font-size:48px;filter:drop-shadow(0 3px 2px #00334a55);will-change:left,top;user-select:none}
-.line{position:absolute;top:0;left:50%;width:3px;height:0;background:#f9e4ad;transform:translateX(-50%);z-index:6;box-shadow:1px 0 #5a4a33}.hook{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);font-size:30px;z-index:7;filter:drop-shadow(0 3px 1px #00334a)}
-.catchlabel{position:absolute;top:28%;right:12px;background:#053957df;border:1px solid #a5f3ff7d;border-radius:14px;padding:8px 10px;font-size:11px;font-weight:800;z-index:10;line-height:1.5}.catchlabel b{font-size:16px;color:#ffe29a}
-.panel{position:absolute;bottom:14px;left:14px;right:14px;z-index:15;text-align:center}.message{font-size:13px;font-weight:800;color:#e0faff;text-shadow:0 2px 3px #00334a;margin-bottom:9px;min-height:18px}
-.mainbtn{width:100%;border:0;border-radius:20px;padding:15px 12px;background:linear-gradient(#8af26b,#31cb65);color:#073b35;font-weight:1000;font-size:20px;box-shadow:0 6px 0 #168c54,0 12px 24px #002a4560;cursor:pointer}.mainbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #168c54}
-.steer{display:flex;justify-content:space-between;gap:12px;margin-top:10px}.steer button{flex:1;border:1px solid #b5efff75;border-radius:16px;background:#063653e8;color:#e8fcff;padding:13px 10px;font-size:18px;font-weight:900;box-shadow:0 4px 0 #04324a66}.steer button:active{background:#0d7595;transform:translateY(2px)}.steer button:disabled{opacity:.42}
+.line{position:absolute;top:0;left:50%;width:3px;height:0;background:#f9e4ad;transform:translateX(-50%);z-index:6}
+.hook{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);font-size:30px;z-index:7}
+.catchlabel{position:absolute;top:28%;right:12px;background:#053957df;border:1px solid #a5f3ff7d;border-radius:14px;padding:8px 10px;font-size:11px;font-weight:800;z-index:10;line-height:1.5}
+.catchlabel b{font-size:16px;color:#ffe29a}
+.panel{position:absolute;bottom:14px;left:14px;right:14px;z-index:15;text-align:center}
+.message{font-size:13px;font-weight:800;color:#e0faff;margin-bottom:9px;min-height:18px}
+.mainbtn{width:100%;border:0;border-radius:20px;padding:15px 12px;background:linear-gradient(#8af26b,#31cb65);color:#073b35;font-weight:1000;font-size:20px;box-shadow:0 6px 0 #168c54;cursor:pointer}
+.steer{display:flex;justify-content:space-between;gap:12px;margin-top:10px}
+.steer button{flex:1;border:1px solid #b5efff75;border-radius:16px;background:#063653e8;color:#e8fcff;padding:13px 10px;font-size:18px;font-weight:900;touch-action:none;user-select:none}
+.steer button:disabled{opacity:.42}
 .hint{font-size:10px;color:#b9eaf8;margin-top:7px}
-.toast{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) scale(.9);background:#fff5d7;color:#13425b;padding:13px 17px;border-radius:18px;font-weight:900;text-align:center;box-shadow:0 10px 35px #00263c66;z-index:18;opacity:0;pointer-events:none;transition:.2s;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.tutorial{position:absolute;inset:0;background:#032b43c9;z-index:30;display:flex;align-items:center;justify-content:center;padding:24px}.modal{background:linear-gradient(160deg,#f8fff5,#d9f8ff);color:#103d55;border-radius:26px;padding:24px 20px;text-align:center;box-shadow:0 20px 60px #00253c80;width:100%;max-width:340px}.logo{font-size:48px}.modal h1{font-size:30px;margin:4px 0}.modal p{font-size:14px;line-height:1.5;color:#41677a}.modal .mainbtn{margin-top:8px}.hidden{display:none!important}
+.toast{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);background:#fff5d7;color:#13425b;padding:13px 17px;border-radius:18px;font-weight:900;text-align:center;z-index:18;opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1}
+.tutorial{position:absolute;inset:0;background:#032b43c9;z-index:30;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal{background:linear-gradient(160deg,#f8fff5,#d9f8ff);color:#103d55;border-radius:26px;padding:24px 20px;text-align:center;width:100%;max-width:340px}
+.logo{font-size:48px}
+.modal h1{font-size:30px;margin:4px 0}
+.modal p{font-size:14px;line-height:1.5;color:#41677a}
+.modal .mainbtn{margin-top:8px}
+.hidden{display:none!important}
 @media(max-height:650px){.boat{top:10%;transform:translateX(-50%) scale(.85)}.panel{bottom:8px}.mainbtn{padding:12px}.steer button{padding:9px}}
-</style></head>
-<body><div class="game" id="game">
-<div class="sky"></div><div class="sun"></div><div class="cloud"></div><div class="hill left"></div><div class="hill right"></div><div class="waterline"></div>
-<div class="hud"><div class="pill">🐟 FISH CAUGHT<strong id="count">0 / 100</strong></div><div class="pill">🌊 DEPTH<strong id="depthText">0 ft</strong></div></div>
-<div class="boat"><div class="person">🧑🏻‍🦰</div><div class="dog">🐶</div><div class="rim"></div><div class="hull"></div></div>
-<div class="scene-window" id="window"><div class="world" id="world"><div class="rays"></div><div class="line" id="line"></div><div class="hook" id="hook">🪝</div></div></div>
-<div class="catchlabel">YOUR CATCH<br><b id="haul">0 fish</b><br><span id="goal">Goal: 100 fish</span></div>
+</style>
+</head>
+<body>
+<div class="game" id="game">
+<div class="sky"></div><div class="sun"></div><div class="cloud"></div>
+<div class="hill left"></div><div class="hill right"></div><div class="waterline"></div>
+<div class="hud">
+<div class="pill">⚖️ TOTAL WEIGHT<strong id="count">0 lb</strong></div>
+<div class="pill">🌊 DEPTH<strong id="depthText">0 ft</strong></div>
+</div>
+<div class="boat"><div class="person">👩🏻‍🦱</div><div class="dog">🐶</div><div class="rim"></div><div class="hull"></div></div>
+<div class="scene-window" id="window">
+<div class="world" id="world">
+<div class="rays"></div><div class="line" id="line"></div><div class="hook" id="hook">🪝</div>
+</div>
+</div>
+<div class="catchlabel">THIS HAUL<br><b id="haul">0 lb</b><br><span id="goal">Goal: 100 lb</span></div>
 <div class="toast" id="toast"></div>
-<div class="panel"><div class="message" id="message">Ready? Cast your line into the lake!</div><button class="mainbtn" id="cast">🎣 CAST YOUR LINE</button><div class="steer"><button id="left" aria-label="Move line left">⬅️ LEFT</button><button id="right" aria-label="Move line right">RIGHT ➡️</button></div><div class="hint" id="hint">Steer left and right to scoop up fish. The line reels in automatically!</div></div>
-<div class="tutorial" id="tutorial"><div class="modal"><div class="logo">🎣🐟</div><h1>Deep Catch</h1><p>Can you catch <b>100 fish</b>? Cast your line to the bottom of the lake, steer left and right to scoop up fish, and the line will automatically reel itself back up!</p><p><b>⬅️ ➡️</b> Steer your line through fish as it sinks and rises.<br><b>Automatic return:</b> Once you reach the bottom, your line reels back up on its own.</p><button class="mainbtn" id="start">LET'S FISH!</button></div></div>
+<div class="panel">
+<div class="message" id="message">Ready? Cast your line into the lake!</div>
+<button class="mainbtn" id="cast">🎣 CAST YOUR LINE</button>
+<div class="steer"><button id="left" aria-label="Move line left">⬅️ LEFT</button><button id="right" aria-label="Move line right">RIGHT ➡️</button></div>
+<div class="hint">Hold the buttons or drag across the water to steer. Your line reels in automatically!</div>
+</div>
+<div class="tutorial" id="tutorial">
+<div class="modal">
+<div class="logo">🎣🐟</div><h1>Deep Catch</h1>
+<p>Can you catch <b>100 pounds of fish</b>? Cast your line to the bottom of the lake, steer left and right to scoop up different fish, and the line will automatically reel itself back up!</p>
+<p><b>⬅️ ➡️</b> Steer through the fish as the line sinks and rises.<br><b>Automatic return:</b> Your line reels back up at the bottom.</p>
+<button class="mainbtn" id="start">LET'S FISH!</button>
+</div>
+</div>
 </div>
 <script>
-(()=>{const $=id=>document.getElementById(id),world=$('world'),win=$('window'),line=$('line'),hook=$('hook');
-let state='ready',depth=0,maxDepth=2050,x=50,total=0,trip=0,fish=[],last=0,raf=0,steer=0,spawnTimer=0;
-const kinds=['🐟','🐠','🐡','🐟','🐟','🦀','🦑','🐠','🐟','🐬'];
-function addFish(y,xp){const e=document.createElement('div');e.className='fish';e.textContent=kinds[Math.floor(Math.random()*kinds.length)];e.style.top=y+'px';e.style.left=xp+'%';e.dataset.y=y;e.dataset.x=xp;e.dataset.dir=Math.random()<.5?-1:1;e.dataset.caught='0';world.appendChild(e);fish.push(e)}
-function makeWorld(){world.querySelectorAll('.fish,.rock,.plant').forEach(e=>e.remove());fish=[];for(let y=130;y<2500;y+=105){for(let j=0;j<2+Math.floor(Math.random()*3);j++)addFish(y+Math.random()*65,8+Math.random()*84)}
-for(let y=500;y<2500;y+=450){let pl=document.createElement('div');pl.className='plant';pl.textContent='🌿';pl.style.top=(y-35)+'px';pl.style.left=(5+Math.random()*85)+'%';world.appendChild(pl)}}
-function viewY(d){return d}
-function render(){line.style.left=x+'%';hook.style.left=x+'%';line.style.height=depth+'px';hook.style.top=depth+'px';world.style.transform=`translateY(${-Math.max(0,depth-win.clientHeight*.42)}px)`;$('depthText').textContent=Math.round(depth/2)+' ft';$('count').textContent=total+' / 100';$('haul').textContent=trip+' fish';}
+(()=>{
+const $=id=>document.getElementById(id);
+const world=$('world'),win=$('window'),line=$('line'),hook=$('hook');
+let state='ready',depth=0,maxDepth=2050,x=50,totalLbs=0,trip=0,tripLbs=0,fish=[],last=0,steer=0,dragging=false,lastTouchX=null;
+const kinds=[
+{emoji:'🐟',name:'Bluegill',lbs:1},
+{emoji:'🐠',name:'Sunfish',lbs:2},
+{emoji:'🐡',name:'Pufferfish',lbs:3},
+{emoji:'🐟',name:'Bass',lbs:5},
+{emoji:'🐟',name:'Catfish',lbs:8},
+{emoji:'🦀',name:'Crab',lbs:2},
+{emoji:'🦑',name:'Squid',lbs:6},
+{emoji:'🐠',name:'Golden fish',lbs:4},
+{emoji:'🐟',name:'Big bass',lbs:12},
+{emoji:'🐬',name:'Rare fish',lbs:15}
+];
+function addFish(y,xp){
+const e=document.createElement('div');
+e.className='fish';
+const kind=kinds[Math.floor(Math.random()*kinds.length)];
+e.textContent=kind.emoji;e.dataset.name=kind.name;e.dataset.lbs=kind.lbs;
+e.style.top=y+'px';e.style.left=xp+'%';e.dataset.y=y;e.dataset.x=xp;
+e.dataset.dir=Math.random()<.5?-1:1;e.dataset.caught='0';
+world.appendChild(e);fish.push(e);
+}
+function makeWorld(){
+world.querySelectorAll('.fish,.plant').forEach(e=>e.remove());fish=[];
+for(let y=130;y<2500;y+=105){
+for(let j=0;j<2+Math.floor(Math.random()*3);j++)addFish(y+Math.random()*65,8+Math.random()*84);
+}
+for(let y=500;y<2500;y+=450){
+let pl=document.createElement('div');pl.className='plant';pl.textContent='🌿';
+pl.style.top=(y-35)+'px';pl.style.left=(5+Math.random()*85)+'%';world.appendChild(pl);
+}
+}
+function render(){
+line.style.left=x+'%';hook.style.left=x+'%';line.style.height=depth+'px';hook.style.top=depth+'px';
+world.style.transform=`translateY(${-Math.max(0,depth-win.clientHeight*.42)}px)`;
+$('depthText').textContent=Math.round(depth/2)+' ft';
+$('count').textContent=totalLbs+' lb';$('haul').textContent=tripLbs+' lb';
+}
 function message(t){$('message').textContent=t}
-function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1100)}
-function catchFish(){for(const f of fish){if(f.dataset.caught==='1')continue;const fy=Number(f.dataset.y),fx=Number(f.dataset.x);if(Math.abs(fy-depth)<60&&Math.abs(fx-x)<12){f.dataset.caught='1';f.style.transition='transform .2s,opacity .2s';f.style.transform='scale(1.7)';f.style.opacity='0';trip++;total++;setTimeout(()=>{f.remove();fish=fish.filter(z=>z!==f)},230)}}}
-function animate(ts){if(!last)last=ts;const dt=Math.min(40,ts-last);last=ts;
-if(state==='sinking'){depth+=dt*.34;if(depth>=maxDepth){depth=maxDepth;state='rising';message('Reeling up automatically! Steer through the fish!');toast('Keep steering!')}}
-else if(state==='rising'){depth-=dt*.31;if(depth<=0){depth=0;finishTrip()}}
-for(const f of fish){if(f.dataset.caught==='1')continue;let fx=Number(f.dataset.x)+Number(f.dataset.dir)*dt*.003; if(fx<3||fx>96){f.dataset.dir=String(-Number(f.dataset.dir));fx=Math.max(3,Math.min(96,fx))}f.dataset.x=fx;f.style.left=fx+'%'}
-if(state==='sinking'||state==='rising')catchFish();render();if(state!=='ready'&&state!=='won')raf=requestAnimationFrame(animate)}
-function startTrip(){if(total>=100){state='won';return}trip=0;x=50;depth=0;maxDepth=1900+Math.random()*500;state='sinking';$('cast').disabled=true;$('cast').textContent='⬇️ SINKING…';$('left').disabled=false;$('right').disabled=false;message('Steer left and right to catch fish!');makeWorld();last=0;raf=requestAnimationFrame(animate)}
-function finishTrip(){state=total>=100?'won':'ready';$('cast').disabled=false;$('cast').textContent=state==='won'?'🏆 YOU CAUGHT 100!':'🎣 CAST AGAIN';$('left').disabled=true;$('right').disabled=true;if(state==='won'){message('Amazing! You reached 100 fish!');toast('🏆 100 FISH — YOU DID IT!')}else{message(`You caught ${trip} fish! ${100-total} more to reach your goal.`);toast('🐟 '+trip+' fish caught!')}}
-function move(dir){if(state!=='sinking'&&state!=='rising')return;x=Math.max(5,Math.min(95,x+dir*4.8));render()}
-$('left').addEventListener('pointerdown',e=>{e.preventDefault();move(-1)});$('right').addEventListener('pointerdown',e=>{e.preventDefault();move(1)});
-window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1)});
-$('cast').addEventListener('click',()=>{if(state==='ready')startTrip();else if(state==='won'){total=0;state='ready';$('cast').textContent='🎣 CAST YOUR LINE';$('count').textContent='0 / 100';message('New game! Catch 100 fish.')}})
-$('start').addEventListener('click',()=>{$('tutorial').classList.add('hidden');$('left').disabled=true;$('right').disabled=true;makeWorld();render()});
+function toast(t){
+$('toast').textContent=t;$('toast').classList.add('show');
+setTimeout(()=>$('toast').classList.remove('show'),1100);
+}
+function catchFish(){
+for(const f of fish){
+if(f.dataset.caught==='1')continue;
+const fy=Number(f.dataset.y),fx=Number(f.dataset.x);
+if(Math.abs(fy-depth)<60&&Math.abs(fx-x)<12){
+f.dataset.caught='1';f.style.transition='transform .2s,opacity .2s';
+f.style.transform='scale(1.7)';f.style.opacity='0';
+tripLbs+=Number(f.dataset.lbs);totalLbs+=Number(f.dataset.lbs);trip++;
+setTimeout(()=>{f.remove();fish=fish.filter(z=>z!==f)},230);
+}
+}
+}
+function canSteer(){return state==='sinking'||state==='rising'}
+function finishTrip(){
+state=totalLbs>=100?'won':'ready';
+$('cast').disabled=false;
+$('cast').textContent=state==='won'?'🏆 100 LB CAUGHT!':'🎣 CAST AGAIN';
+$('left').disabled=true;$('right').disabled=true;steer=0;
+if(state==='won'){message('Amazing! You reached 100 pounds!');toast('🏆 100 LB — YOU DID IT!')}
+else{message(`You landed ${trip} fish weighing ${tripLbs} lb! ${Math.max(0,100-totalLbs)} lb to go.`);toast('⚖️ '+tripLbs+' lb landed!')}
+}
+function animate(ts){
+if(!last)last=ts;
+const dt=Math.min(40,ts-last);last=ts;
+if(canSteer()&&steer!==0)x=Math.max(5,Math.min(95,x+steer*dt*.035));
+if(state==='sinking'){
+depth+=dt*.34;
+if(depth>=maxDepth){depth=maxDepth;state='rising';message('Reeling up automatically! Steer through the fish!');toast('Keep steering!')}
+}else if(state==='rising'){
+depth-=dt*.31;
+if(depth<=0){depth=0;finishTrip()}
+}
+for(const f of fish){
+if(f.dataset.caught==='1')continue;
+let fx=Number(f.dataset.x)+Number(f.dataset.dir)*dt*.003;
+if(fx<3||fx>96){f.dataset.dir=String(-Number(f.dataset.dir));fx=Math.max(3,Math.min(96,fx))}
+f.dataset.x=fx;f.style.left=fx+'%';
+}
+if(state==='sinking'||state==='rising')catchFish();
+render();
+if(state!=='ready'&&state!=='won')requestAnimationFrame(animate);
+}
+function startTrip(){
+if(totalLbs>=100){state='won';return}
+trip=0;tripLbs=0;x=50;depth=0;maxDepth=1900+Math.random()*500;
+state='sinking';$('cast').disabled=true;$('cast').textContent='⬇️ SINKING…';
+$('left').disabled=false;$('right').disabled=false;
+message('Steer left and right to catch fish!');makeWorld();last=0;requestAnimationFrame(animate);
+}
+function move(dir){if(!canSteer())return;x=Math.max(5,Math.min(95,x+4.8));render()}
+function steerHold(dir){if(canSteer())steer=dir}
+['left','right'].forEach((id,i)=>{
+const dir=i===0?-1:1,btn=$(id);
+btn.addEventListener('pointerdown',e=>{e.preventDefault();steerHold(dir);try{btn.setPointerCapture(e.pointerId)}catch(_){}});
+btn.addEventListener('pointerup',e=>{e.preventDefault();if(steer===dir)steer=0});
+btn.addEventListener('pointercancel',()=>{if(steer===dir)steer=0});
+btn.addEventListener('lostpointercapture',()=>{if(steer===dir)steer=0});
+});
+win.addEventListener('pointerdown',e=>{
+if(!canSteer()||e.target.closest('.panel')||e.target.closest('.hud')||e.target.closest('.catchlabel'))return;
+dragging=true;lastTouchX=e.clientX;
+try{win.setPointerCapture(e.pointerId)}catch(_){}
+});
+win.addEventListener('pointermove',e=>{
+if(!dragging||!canSteer())return;
+if(lastTouchX!==null){
+const dx=e.clientX-lastTouchX;
+x=Math.max(5,Math.min(95,x+(dx/win.clientWidth)*100));
+lastTouchX=e.clientX;render();
+}
+});
+function stopDrag(){dragging=false;lastTouchX=null}
+win.addEventListener('pointerup',stopDrag);
+win.addEventListener('pointercancel',stopDrag);
+win.addEventListener('lostpointercapture',stopDrag);
+window.addEventListener('keydown',e=>{
+if(e.key==='ArrowLeft')move(-1);
+if(e.key==='ArrowRight')move(1);
+});
+$('cast').addEventListener('click',()=>{
+if(state==='ready')startTrip();
+else if(state==='won'){
+state='ready';totalLbs=0;tripLbs=0;trip=0;
+$('cast').textContent='🎣 CAST YOUR LINE';
+$('count').textContent='0 lb';$('haul').textContent='0 lb';
+message('New game! Catch 100 pounds of fish.');
+}
+});
+$('start').addEventListener('click',()=>{
+$('tutorial').classList.add('hidden');$('left').disabled=true;$('right').disabled=true;
+makeWorld();render();
+});
 makeWorld();render();
 })();
-</script></body></html>
+</script>
+</body>
+</html>
